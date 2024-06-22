@@ -1,10 +1,81 @@
 @media screen and (max-width: 576px) {
+    .topBanner{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-image: url(https://i.ibb.co/y6Sw1ZK/DALL-E-2024-06-08-21-09-53-A-clean-modern-top-banner-image-for-a-restaurant-website-featuring-a-mini.webp);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        width: 100%;
+        height: auto;
+    }
+    .topBannerContentInfo{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .topBannerContentInfo h1{
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 1.4rem;
+    }
 }
 
 @media (min-width: 577px) and (max-width: 767px) {
+    .topBanner{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-image: url(https://i.ibb.co/y6Sw1ZK/DALL-E-2024-06-08-21-09-53-A-clean-modern-top-banner-image-for-a-restaurant-website-featuring-a-mini.webp);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        width: 100%;
+        height: auto;
+    }
+    .topBannerContentInfo{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .topBannerContentInfo h1{
+        margin-left: auto;
+        margin-right: auto;
+        font-size: 1.4rem;
+    }
+
 }
 
 @media (min-width: 768px) and (max-width: 992px) {
+    .topBanner{
+        background-image: url(https://i.ibb.co/y6Sw1ZK/DALL-E-2024-06-08-21-09-53-A-clean-modern-top-banner-image-for-a-restaurant-website-featuring-a-mini.webp);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        width: 100%;
+        height: auto;
+    }
+    .topBannerContent{
+        display: flex;
+        justify-content: space-evenly;
+    }
+    .topBannerContentInfo{
+        width: 300px;
+        margin-top: auto;
+        margin-bottom:auto ;
+    }
+    .topBannerContentInfo h1{
+        font-size: 1.8rem;
+    }
+    .topBannerContentImg{
+        height: 200px;
+        width: 200px;
+    }
 }
 
 @media (min-width: 993px) and (max-width: 1200px) {
