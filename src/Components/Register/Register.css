@@ -1,0 +1,53 @@
+@media screen and (max-width: 576px) {
+    .registerPage{
+        display: flex;
+        flex-direction: column-reverse;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 767px) {
+    .registerPage{
+        display: flex;
+        flex-direction: column-reverse;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+    .registerPage{
+        display: flex;
+    }
+    .registerCardContent{
+        width: 400px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .registerImgContent div{
+        height: 100%;
+        width: 500px;
+    }
+}
+@media(min-width: 993px) and (max-width: 1200px){
+
+}
+
+@media screen and (min-width: 1201px) {
+    .registerPage{
+        display: flex;
+        justify-content: space-evenly;
+    }
+    .registerPageImgDiv img{
+        height: 100%;
+        width: auto;
+    }
+    .registerCardContent{
+        width: 500px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .registerImgContent div{
+        height: 100%;
+        width: 600px;
+    }
+}
