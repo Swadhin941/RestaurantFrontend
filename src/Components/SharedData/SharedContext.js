@@ -5,7 +5,7 @@ export const SharedData = createContext();
 
 const SharedContext = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const login = (email, password) => {
         setLoading(true);
@@ -53,7 +53,8 @@ const SharedContext = ({ children }) => {
                 // console.log(response);
                 if(response.status=== 200){
                     const data = await response.json();
-                    setUser(data);
+                    console.log(data);
+                    setUser(data?.user);
                 }
                 else{
                     setUser(null);

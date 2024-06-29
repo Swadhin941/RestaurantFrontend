@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { SharedData } from "../SharedData/SharedContext";
 import ClockLoader from "react-spinners/ClockLoader";
 import toast from "react-hot-toast";
+import { ServerUrl } from "../ServerUrl/ServerUrl";
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -14,14 +15,28 @@ const Login = () => {
         const form = e.target;
         const email = form.email.value;
         const password = form.password.value;
-        console.log(email, password);
         setDataLoading(true);
         login(email, password)
         .then(res=>res.json())
         .then(data=>{
             if(data){
-                setUser(data);
-                toast.success("Logged in successfully");
+                fetch(`${ServerUrl}/auth/jwt`,{
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    }, 
+                    body: JSON.stringify({email: email, role: data?.role})
+                })
+                .then(res=>res.json())
+                .then(jwtData=>{
+                    localStorage.setItem('token', jwtData?.token);
+                    setUser(data);
+                    toast.success("Logged in successfully");
+                })
+                .catch(error=>{
+                    toast.error(error.message);
+                })
+                
             }
             else{
                 toast.error("Invalid username or password");
@@ -102,7 +117,7 @@ const Login = () => {
                                 </div>
                                 <div className="mt-3 d-flex justify-content-center">
                                     <button
-                                        className="btn btn-success w-50"
+                                        className="btn btn-success w-50 d-flex justify-content-center"
                                         disabled={dataLoading}
                                     >
                                         {dataLoading ? (

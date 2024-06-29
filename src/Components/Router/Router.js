@@ -6,6 +6,10 @@ import AdminDashboard from "../AdminDashboard/AdminDashboard";
 import AddItem from "../AddItem/AddItem";
 import Login from "../Login/Login";
 import Register from "../Register/Register";
+import AllProducts from "../AllProducts/AllProducts";
+import PageNotFound from "../PageNotFound/PageNotFound";
+import Forbidden from "../Forbidden/Forbidden";
+import AdminRoute from "../PrivateRoute/AdminRoute/AdminRoute";
 const Router = createBrowserRouter([
     {
         path: "/",
@@ -17,27 +21,51 @@ const Router = createBrowserRouter([
             },
             {
                 path: "/login",
-                element: <Login></Login>
+                element: <Login></Login>,
             },
             {
                 path: "/register",
-                element: <Register></Register>
-            }
+                element: <Register></Register>,
+            },
         ],
     },
     {
         path: "/admin",
-        element: <Admin></Admin>,
+        element: (
+            <AdminRoute>
+                <Admin></Admin>,
+            </AdminRoute>
+        ),
         children: [
             {
                 path: "/admin/",
-                element: <AdminDashboard></AdminDashboard>
+                element: (
+                    <AdminRoute>
+                        <AdminDashboard></AdminDashboard>
+                    </AdminRoute>
+                ),
             },
             {
                 path: "/admin/add-item",
-                element: <AddItem></AddItem>
-            }
+                element: (
+                    <AdminRoute>
+                        <AddItem></AddItem>,
+                    </AdminRoute>
+                ),
+            },
+            {
+                path: "/admin/all-products",
+                element: <AdminRoute><AllProducts></AllProducts></AdminRoute>,
+            },
         ],
+    },
+    {
+        path: "*",
+        element: <PageNotFound></PageNotFound>,
+    },
+    {
+        path: "/forbidden",
+        element: <Forbidden></Forbidden>,
     },
 ]);
 

@@ -26,7 +26,6 @@ function ResponsiveDrawer(props) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const adminComponents = AdminComponents();
-    console.log(adminComponents);
     const handleDrawerClose = () => {
         setIsClosing(true);
         setMobileOpen(false);
@@ -147,6 +146,7 @@ function ResponsiveDrawer(props) {
                     p: 3,
                     width: { sm: `calc(100% - ${drawerWidth}px)` },
                 }}
+                style={{paddingLeft:"0px", paddingBottom:"0px"}}
             >
                 <Toolbar />
                 <Outlet></Outlet>
