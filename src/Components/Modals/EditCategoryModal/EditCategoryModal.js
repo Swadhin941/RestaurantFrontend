@@ -1,19 +1,25 @@
 import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { SharedData } from "../../SharedData/SharedContext";
 import useAxiosSecure from "../../CustomHook/useAxiosSecure/useAxiosSecure";
+import { SharedData } from "../../SharedData/SharedContext";
 
-const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
+const EditCategoryModal = ({
+    selectedCategory,
+    setAllCategory,
+    allCategory,
+}) => {
     const [tempImg, setTempImg] = useState(null);
-    const { user } = useContext(SharedData);
+    const [base64, setBase64] = useState(null);
     const [axiosSecure] = useAxiosSecure();
-    // useEffect(() => {
-    //     if (user) {
-    //         axiosSecure.get('/')
-    //     }
-    // }, [user]);
+    const { user } = useContext(SharedData);
 
-    const handleImageChange = (e) => {
+    useEffect(() => {
+        if (selectedCategory) {
+            setTempImg(selectedCategory?.imgLink);
+        }
+    }, [selectedCategory]);
+
+    const handleEditImageChange = (e) => {
         const type = e.target.files[0].type.split("/")[1];
         if (
             type.toLowerCase() === "jpg" ||
@@ -21,73 +27,70 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
             type.toLowerCase() === "jpeg" ||
             type.toLowerCase() === "webp"
         ) {
-            setTempImg(e.target.files[0]);
+            setBase64(e.target.files[0]);
+            setTempImg(URL.createObjectURL(e.target.files[0]));
         } else {
             toast.error("Only JPG, JPEG, PNG, or WebP images are allowed.");
-            setTempImg(null);
+            setBase64(null);
             return;
         }
     };
 
-    const handleCategorySubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const form = e.target;
-        const tempName = form.categoryName.value;
-        const name =
-            tempName.charAt(0).toUpperCase() +
-            tempName.slice(1, tempName.length);
+        const name = form.name.value;
         if (!tempImg) {
-            toast.error("Please upload a image");
+            toast.error("Please select an image.");
             return;
         }
-        const formData = new FormData();
-        formData.append("image", tempImg);
-        fetch(
-            `https://api.imgbb.com/1/upload?key=${process.env.REACT_APP_imgBB}`,
-            {
-                method: "POST",
-                body: formData,
-            }
-        )
-            .then((res) => res.json())
-            .then((imgData) => {
-                if (imgData.success) {
-                    axiosSecure
-                        .post(`/admin/add-category?user=${user?.email}`, {
-                            name,
-                            imgLink: imgData?.data?.url,
-                        })
-                        .then((res) => res.data)
-                        .then((data) => {
-                            if (data.acknowledged) {
-                                const temp = [...allCategory, {name, imgLink: imgData?.data?.url}];
-                                setAllCategory([...temp]);
-                                toast.success("Category added successfully");
-                                handleCancel();
-                            }
-                        })
-                        .catch((error) => {
-                            toast.error(error.message);
-                        });
-                } else {
-                    toast.error(imgData?.message);
+        let imgLink ;
+        
+        if (base64) {
+            const formData = new FormData();
+            formData.append("image", base64);
+            const response = await fetch(
+                `https://api.imgbb.com/1/upload?key=${process.env.REACT_APP_imgBB}`,
+                {
+                    method: "POST",
+                    body: formData,
                 }
-            })
-            .catch((error) => {
-                toast.error(error.message);
+            );
+            const data = await response.json();
+            if(data?.success){
+                imgLink = data?.data?.url;
+            }
+        }
+        else{
+            imgLink = selectedCategory?.imgLink;
+        }
+        const updateCategoryResponse = await axiosSecure.put(
+            `/admin/edit-category?user=${user?.email}`,
+            {
+                _id: selectedCategory?._id,
+                name: name,
+                imgLink: imgLink,
+            }
+        );
+        const data = await updateCategoryResponse.data;
+        if(data?.acknowledged){
+            const temp = [...allCategory];
+            temp.forEach((element) => {
+                if (element?._id === selectedCategory._id) {
+                    element.name = name;
+                    element.imgLink = imgLink;
+                }
             });
-    };
-    const handleCancel = () => {
-        document.querySelector("#categoryForm").reset();
-        setTempImg(null);
+            setAllCategory([...temp]);
+        }
     };
 
     return (
         <div
             className="modal fade"
-            id="CategoryUploadModal"
-            data-bs-keyboard="false"
+            id="EditCategoryModal"
             data-bs-backdrop="static"
+            data-bs-keyboard="false"
         >
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
@@ -103,31 +106,32 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
                     <div className="modal-body">
                         <form
                             className="form"
-                            id="categoryForm"
-                            onSubmit={handleCategorySubmit}
+                            id="editCategoryForm"
+                            onSubmit={handleSubmit}
                         >
                             <div>
                                 <label
                                     htmlFor="name"
                                     className="form-label mb-1"
                                 >
-                                    Category Name:
+                                    Name:
                                 </label>
                                 <div className="input-group">
                                     <input
                                         type="text"
-                                        name="categoryName"
                                         className="form-control"
-                                        required
-                                        style={{ border: "1px solid blue" }}
-                                        placeholder="Enter a category name"
-                                        autoComplete="off"
+                                        defaultValue={selectedCategory?.name}
+                                        name="name"
+                                        maxLength={8}
                                     />
                                 </div>
                             </div>
                             <div className="mt-2">
                                 {tempImg ? (
                                     <div className="mt-2">
+                                        <label htmlFor="uploadImage">
+                                            Food Category Image:
+                                        </label>
                                         <div
                                             style={{
                                                 height: "100px",
@@ -136,14 +140,14 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
                                             }}
                                             onClick={() =>
                                                 document
-                                                    .querySelector(".uploadImg")
+                                                    .querySelector(
+                                                        ".editCategoryImg"
+                                                    )
                                                     .click()
                                             }
                                         >
                                             <img
-                                                src={URL.createObjectURL(
-                                                    tempImg
-                                                )}
+                                                src={tempImg}
                                                 alt=""
                                                 style={{
                                                     height: "100%",
@@ -168,7 +172,7 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
                                             onClick={() =>
                                                 document
                                                     .querySelector(
-                                                        ".categoryImg"
+                                                        ".editCategoryImg"
                                                     )
                                                     .click()
                                             }
@@ -182,33 +186,20 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
                                 <input
                                     type="file"
                                     name="uploadImg"
-                                    className="categoryImg"
+                                    className="editCategoryImg"
                                     hidden
-                                    onChange={handleImageChange}
+                                    onChange={handleEditImageChange}
                                 />
                             </div>
                             <div className="mt-2 d-flex justify-content-end">
                                 <button
-                                    className="btn border border-0"
-                                    style={{
-                                        backgroundColor: "blue",
-                                        color: "white",
-                                        width: "120px",
-                                    }}
+                                    className="btn w-50 border border-0 text-white"
+                                    type="submit"
+                                    style={{ backgroundColor: "blue" }}
+                                    data-bs-dismiss="modal"
                                 >
-                                    Create
+                                    Update category
                                 </button>
-                                <p
-                                    className="btn btn-white mx-2 mb-0 pb-0"
-                                    style={{
-                                        color: "blue",
-                                        border: "1px solid blue",
-                                        width: "120px",
-                                    }}
-                                    onClick={handleCancel}
-                                >
-                                    Cancel
-                                </p>
                             </div>
                         </form>
                     </div>
@@ -218,4 +209,4 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
     );
 };
 
-export default CategoryUploadModal;
+export default EditCategoryModal;

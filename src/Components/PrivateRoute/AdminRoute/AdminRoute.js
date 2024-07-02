@@ -5,7 +5,6 @@ import { SharedData } from '../../SharedData/SharedContext';
 
 const AdminRoute = ({children}) => {
     const {user, loading}= useContext(SharedData);
-    console.log(user, "from admin route", loading);
     const location = useLocation();
 
     if(loading){

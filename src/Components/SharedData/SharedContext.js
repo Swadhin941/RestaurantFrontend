@@ -21,6 +21,13 @@ const SharedContext = ({ children }) => {
         });
     };
 
+    const logout = () => {
+        setLoading(true);
+        localStorage.removeItem("token");
+        setUser(false);
+        setLoading(false);
+    };
+
     const register = (fullName, email, password) => {
         setLoading(true);
         return fetch(`${ServerUrl}/auth/register`, {
@@ -51,21 +58,12 @@ const SharedContext = ({ children }) => {
                     }
                 );
                 // console.log(response);
-                if(response.status=== 200){
+                if (response.status === 200) {
                     const data = await response.json();
-                    console.log(data);
                     setUser(data?.user);
-                }
-                else{
+                } else {
                     setUser(null);
                 }
-                // const data = await response.json();
-                // if (data.user) {
-                //     // console.log(data.user);
-                //     setUser(data.user);
-                // } else {
-                //     setUser(null);
-                // }
             } catch (error) {
                 setUser(null);
             }
@@ -74,7 +72,15 @@ const SharedContext = ({ children }) => {
         return () => subscriber();
     }, []);
 
-    const authInfo = { user, setUser, loading, setLoading, login, register };
+    const authInfo = {
+        user,
+        setUser,
+        loading,
+        setLoading,
+        login,
+        register,
+        logout,
+    };
     return (
         <div>
             <SharedData.Provider value={authInfo}>
