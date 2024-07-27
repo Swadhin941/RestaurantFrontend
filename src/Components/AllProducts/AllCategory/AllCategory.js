@@ -3,17 +3,23 @@ import CategoryUploadModal from "../../Modals/CategoryUploadModal/CategoryUpload
 import { SharedData } from "../../SharedData/SharedContext";
 import { ServerUrl } from "../../ServerUrl/ServerUrl";
 import EditCategoryModal from "../../Modals/EditCategoryModal/EditCategoryModal";
+import useAxiosSecure from "../../CustomHook/useAxiosSecure/useAxiosSecure";
+import ConfirmModal from "../../Modals/ConfirmModal/ConfirmModal";
+import toast from "react-hot-toast";
 
-const AllCategory = () => {
+const AllCategory = ({ setReloadData, reloadData }) => {
     const [allCategory, setAllCategory] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [deleteState, setDeleteState] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
     const { user } = useContext(SharedData);
+    const [axiosSecure] = useAxiosSecure();
+
     useEffect(() => {
         if (user) {
             fetch(`${ServerUrl}/get-category`)
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log(data);
                     setAllCategory(data);
                 });
         }
@@ -24,19 +30,49 @@ const AllCategory = () => {
     };
 
     const handleDeleteCategory = (category) => {
-        console.log(category);
+        setDeleteId(category);
     };
+
+    useEffect(() => {
+        if (deleteState) {
+            axiosSecure
+                .delete(`/admin/delete-category?user=${user?.email}`, {
+                    data: {
+                        ...deleteId,
+                    },
+                })
+                .then((res) => res.data)
+                .then((data) => {
+                    if (data.deletedCount >= 1) {
+                        const temp = [...allCategory];
+                        const filteredData = temp.filter(
+                            (filterData) => filterData?._id !== deleteId?._id
+                        );
+                        setAllCategory([...filteredData]);
+                        setReloadData(!reloadData);
+                        setDeleteId(null);
+                        toast.success("Category deleted successfully");
+                    }
+                    setDeleteState(false);
+                })
+                .catch(error=>{
+                    setDeleteId(null);
+                    setDeleteState(false);
+                    toast.error(error.message);
+                });
+        }
+    }, [deleteState]);
 
     return (
         <div
             className="container-fluid ps-0 pe-0 pt-0"
             style={{
-                height: "100vh",
+                height: allCategory.length<=1?"100vh":"100%",
                 borderRight: "1px solid blue",
                 borderTopRightRadius: "10px",
-                overflow:"auto",
+                overflow: "auto",
                 overflowX: "hidden",
-                overflowY: "auto"
+                overflowY: "auto",
             }}
         >
             <div
@@ -98,10 +134,11 @@ const AllCategory = () => {
                                                     src={category?.imgLink}
                                                     alt=""
                                                     className="img-fluid"
+                                                    style={{height:"100%", borderRadius:"5px"}}
                                                 />
                                             </div>
                                             <div className="col-8 col-sm-8 col-md-8 col-lg-8">
-                                                <h4 className="p-0 m-0">
+                                                <h4 className="p-0 m-0" style={{fontSize:category?.name.length <=11?"17px": "14px"}}>
                                                     {category?.name}
                                                 </h4>
                                                 <div className="d-flex mt-1">
@@ -128,6 +165,8 @@ const AllCategory = () => {
                                                                 category
                                                             )
                                                         }
+                                                        data-bs-target="#ConfirmModal"
+                                                        data-bs-toggle="modal"
                                                     ></i>
                                                 </div>
                                             </div>
@@ -139,11 +178,22 @@ const AllCategory = () => {
                     </div>
                 )}
             </div>
-            <EditCategoryModal selectedCategory={selectedCategory} allCategory={allCategory} setAllCategory={setAllCategory}></EditCategoryModal>
+            <EditCategoryModal
+                selectedCategory={selectedCategory}
+                allCategory={allCategory}
+                setAllCategory={setAllCategory}
+                deleteState= {deleteState}
+                reloadData={reloadData}
+                setReloadData={setReloadData}
+            ></EditCategoryModal>
             <CategoryUploadModal
                 allCategory={allCategory}
                 setAllCategory={setAllCategory}
+                reloadData= {reloadData}
+                setReloadData={setReloadData}
+                deleteState= {deleteState}
             ></CategoryUploadModal>
+            <ConfirmModal setDeleteState={setDeleteState}></ConfirmModal>
         </div>
     );
 };

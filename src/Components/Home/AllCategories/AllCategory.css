@@ -1,0 +1,50 @@
+.categoryHover:hover {
+    border: 2px solid orange;
+    border-radius: 10px;
+    padding: 5px 2px;
+    cursor: pointer;
+}
+@media screen and (max-width: 576px) {
+    .categoryTopImg{
+        height: 150px;
+        width: auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 767px) {
+    .categoryTopImg{
+        height: 150px;
+        width: auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .categoryTopImg {
+        height: 150px;
+        width: auto;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .categoryTopImg {
+        height: 200px;
+        width: 200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (min-width: 1200px) {
+    .categoryTopImg {
+        height: 200px;
+        width: 200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}

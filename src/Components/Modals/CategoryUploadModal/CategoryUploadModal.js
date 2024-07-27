@@ -2,16 +2,34 @@ import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { SharedData } from "../../SharedData/SharedContext";
 import useAxiosSecure from "../../CustomHook/useAxiosSecure/useAxiosSecure";
-
-const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
+import { ServerUrl } from "../../ServerUrl/ServerUrl";
+import ClockLoader from 'react-spinners/ClockLoader';
+const CategoryUploadModal = ({
+    allCategory,
+    setAllCategory,
+    reloadData,
+    setReloadData,
+    deleteState,
+}) => {
     const [tempImg, setTempImg] = useState(null);
     const { user } = useContext(SharedData);
     const [axiosSecure] = useAxiosSecure();
-    // useEffect(() => {
-    //     if (user) {
-    //         axiosSecure.get('/')
-    //     }
-    // }, [user]);
+    const [uniqueTitle, setUniqueTitle] = useState(null);
+    const [allTitle, setAllTitle] = useState([]);
+    const [dataLoading, setDataLoading]= useState(false);
+
+    useEffect(() => {
+        if (user) {
+            fetch(`${ServerUrl}/get-category`)
+                .then((res) => res.json())
+                .then((data) => {
+                    setAllTitle(data);
+                })
+                .catch((error) => {
+                    toast.error(error.message);
+                });
+        }
+    }, [user, deleteState]);
 
     const handleImageChange = (e) => {
         const type = e.target.files[0].type.split("/")[1];
@@ -29,8 +47,25 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
         }
     };
 
+    const handleNameChange = (e) => {
+        const name = e.target.value;
+        const temp = [...allTitle];
+        const findName = temp.find(
+            (data) => data?.name.toLowerCase() === name.toLowerCase()
+        );
+        if (findName) {
+            setUniqueTitle(null);
+        } else {
+            setUniqueTitle(name);
+        }
+    };
+
     const handleCategorySubmit = (e) => {
         e.preventDefault();
+        if (!uniqueTitle) {
+            toast.error("Please enter a unique name");
+            return;
+        }
         const form = e.target;
         const tempName = form.categoryName.value;
         const name =
@@ -42,6 +77,7 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
         }
         const formData = new FormData();
         formData.append("image", tempImg);
+        setDataLoading(true);
         fetch(
             `https://api.imgbb.com/1/upload?key=${process.env.REACT_APP_imgBB}`,
             {
@@ -60,20 +96,28 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
                         .then((res) => res.data)
                         .then((data) => {
                             if (data.acknowledged) {
-                                const temp = [...allCategory, {name, imgLink: imgData?.data?.url}];
+                                const temp = [
+                                    ...allCategory,
+                                    { name, imgLink: imgData?.data?.url },
+                                ];
                                 setAllCategory([...temp]);
+                                setReloadData(!reloadData);
                                 toast.success("Category added successfully");
                                 handleCancel();
                             }
+                            setDataLoading(false);
                         })
                         .catch((error) => {
                             toast.error(error.message);
+                            setDataLoading(false)
                         });
                 } else {
+                    setDataLoading(false);
                     toast.error(imgData?.message);
                 }
             })
             .catch((error) => {
+                setDataLoading(false);
                 toast.error(error.message);
             });
     };
@@ -122,6 +166,10 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
                                         style={{ border: "1px solid blue" }}
                                         placeholder="Enter a category name"
                                         autoComplete="off"
+                                        onChange={(data) =>
+                                            handleNameChange(data)
+                                        }
+                                        maxLength={20}
                                     />
                                 </div>
                             </div>
@@ -194,9 +242,12 @@ const CategoryUploadModal = ({ allCategory, setAllCategory }) => {
                                         backgroundColor: "blue",
                                         color: "white",
                                         width: "120px",
+                                        display:"flex",
+                                        justifyContent:"center"
                                     }}
+                                    disabled={dataLoading}
                                 >
-                                    Create
+                                    {dataLoading? <ClockLoader size="24" color="white" />: "Create"}
                                 </button>
                                 <p
                                     className="btn btn-white mx-2 mb-0 pb-0"

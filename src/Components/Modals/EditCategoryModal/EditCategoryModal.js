@@ -2,22 +2,41 @@ import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import useAxiosSecure from "../../CustomHook/useAxiosSecure/useAxiosSecure";
 import { SharedData } from "../../SharedData/SharedContext";
+import { ServerUrl } from "../../ServerUrl/ServerUrl";
 
 const EditCategoryModal = ({
     selectedCategory,
     setAllCategory,
     allCategory,
+    deleteState, 
+    setReloadData, 
+    reloadData
 }) => {
     const [tempImg, setTempImg] = useState(null);
     const [base64, setBase64] = useState(null);
     const [axiosSecure] = useAxiosSecure();
     const { user } = useContext(SharedData);
+    const [uniqueTitle, setUniqueTitle]= useState(null);
+    const [allTitle, setAllTitle]= useState([]);
 
     useEffect(() => {
         if (selectedCategory) {
             setTempImg(selectedCategory?.imgLink);
         }
     }, [selectedCategory]);
+
+    useEffect(() => {
+        if (user) {
+            fetch(`${ServerUrl}/get-category`)
+                .then((res) => res.json())
+                .then((data) => {
+                    setAllTitle(data);
+                })
+                .catch((error) => {
+                    toast.error(error.message);
+                });
+        }
+    }, [user, deleteState, reloadData]);
 
     const handleEditImageChange = (e) => {
         const type = e.target.files[0].type.split("/")[1];
@@ -36,8 +55,25 @@ const EditCategoryModal = ({
         }
     };
 
+        const handleNameChange = (e) => {
+            const name = e.target.value;
+            const temp = [...allTitle];
+            const findName = temp.find(
+                (data) => data?.name.toLowerCase() === name.toLowerCase()
+            );
+            if (findName) {
+                setUniqueTitle(null);
+            } else {
+                setUniqueTitle(name);
+            }
+        };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!uniqueTitle) {
+            toast.error("Category name must be unique");
+            return;
+        }
         const form = e.target;
         const name = form.name.value;
         if (!tempImg) {
@@ -70,6 +106,7 @@ const EditCategoryModal = ({
                 _id: selectedCategory?._id,
                 name: name,
                 imgLink: imgLink,
+                oldName: selectedCategory?.name
             }
         );
         const data = await updateCategoryResponse.data;
@@ -82,8 +119,12 @@ const EditCategoryModal = ({
                 }
             });
             setAllCategory([...temp]);
+            setReloadData(!reloadData);
         }
     };
+    const handleCancel= ()=>{
+        document.querySelector("#editCategoryForm").reset();
+    }
 
     return (
         <div
@@ -101,6 +142,7 @@ const EditCategoryModal = ({
                         <button
                             className="btn btn-close"
                             data-bs-dismiss="modal"
+                            onClick={()=>handleCancel()}
                         ></button>
                     </div>
                     <div className="modal-body">
@@ -122,7 +164,9 @@ const EditCategoryModal = ({
                                         className="form-control"
                                         defaultValue={selectedCategory?.name}
                                         name="name"
-                                        maxLength={8}
+                                        maxLength={20}
+                                        onChange={(data)=>handleNameChange(data)}
+                                        
                                     />
                                 </div>
                             </div>

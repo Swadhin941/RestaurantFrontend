@@ -9,10 +9,6 @@ const AdminComponents= ()=>{
             name: "Home"
         },
         {
-            path: "/admin/add-item",
-            name: "Add Item"
-        },
-        {
             name: "All Products",
             path: "/admin/all-products"
         }

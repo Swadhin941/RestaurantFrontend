@@ -1,6 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./Login.css";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { SharedData } from "../SharedData/SharedContext";
 import ClockLoader from "react-spinners/ClockLoader";
 import toast from "react-hot-toast";
@@ -8,8 +8,18 @@ import { ServerUrl } from "../ServerUrl/ServerUrl";
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
-    const { login, setUser, setLoading } = useContext(SharedData);
+    const { login, setUser, setLoading, user } = useContext(SharedData);
     const [dataLoading, setDataLoading] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/";
+
+    useEffect(()=>{
+        if(user){
+            navigate(from, {replace: true});
+        }
+    },[user])
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const form = e.target;
@@ -17,39 +27,41 @@ const Login = () => {
         const password = form.password.value;
         setDataLoading(true);
         login(email, password)
-        .then(res=>res.json())
-        .then(data=>{
-            if(data){
-                fetch(`${ServerUrl}/auth/jwt`,{
-                    method: "POST",
-                    headers: {
-                        "content-type": "application/json"
-                    }, 
-                    body: JSON.stringify({email: email, role: data?.role})
-                })
-                .then(res=>res.json())
-                .then(jwtData=>{
-                    localStorage.setItem('token', jwtData?.token);
-                    setUser(data);
-                    toast.success("Logged in successfully");
-                })
-                .catch(error=>{
-                    toast.error(error.message);
-                })
-                
-            }
-            else{
-                toast.error("Invalid username or password");
-                setUser(null);
-            }
-            setLoading(false);
-            setDataLoading(false);
-        })
-        .catch(error=>{
-            setDataLoading(false);
-            setLoading(false);
-            toast.error("Check your internet connection and try again");
-        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data) {
+                    fetch(`${ServerUrl}/auth/jwt`, {
+                        method: "POST",
+                        headers: {
+                            "content-type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            role: data?.role,
+                        }),
+                    })
+                        .then((res) => res.json())
+                        .then((jwtData) => {
+                            localStorage.setItem("token", jwtData?.token);
+                            setUser(data);
+                            navigate(from, { replace: true });
+                            toast.success("Logged in successfully");
+                        })
+                        .catch((error) => {
+                            toast.error(error.message);
+                        });
+                } else {
+                    toast.error("Invalid username or password");
+                    setUser(null);
+                }
+                setLoading(false);
+                setDataLoading(false);
+            })
+            .catch((error) => {
+                setDataLoading(false);
+                setLoading(false);
+                toast.error("Check your internet connection and try again");
+            });
     };
     return (
         <div className="container-fluid loginContainer">

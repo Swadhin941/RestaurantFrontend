@@ -3,7 +3,6 @@ import Root from "../Layout/Root";
 import Home from "../Home/Home/Home";
 import Admin from "../Layout/Admin";
 import AdminDashboard from "../AdminDashboard/AdminDashboard";
-import AddItem from "../AddItem/AddItem";
 import Login from "../Login/Login";
 import Register from "../Register/Register";
 import AllProducts from "../AllProducts/AllProducts";
@@ -42,14 +41,6 @@ const Router = createBrowserRouter([
                 element: (
                     <AdminRoute>
                         <AdminDashboard></AdminDashboard>
-                    </AdminRoute>
-                ),
-            },
-            {
-                path: "/admin/add-item",
-                element: (
-                    <AdminRoute>
-                        <AddItem></AddItem>,
                     </AdminRoute>
                 ),
             },

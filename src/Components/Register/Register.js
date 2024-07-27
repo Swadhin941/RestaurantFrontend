@@ -1,11 +1,22 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./Register.css";
 import { SharedData } from "../SharedData/SharedContext";
 import toast from "react-hot-toast";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const { user, register, setLoading } = useContext(SharedData);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || '/';
+    
+
+    useEffect(()=>{
+        if(user){
+            navigate(from, {replace: true});
+        }
+    },[user])
 
     const handleSubmit = (e) => {
         e.preventDefault();

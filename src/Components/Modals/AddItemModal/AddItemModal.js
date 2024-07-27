@@ -1,14 +1,42 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { ClipLoader } from "react-spinners/ClipLoader";
 import useAxiosSecure from "../../CustomHook/useAxiosSecure/useAxiosSecure";
 import { SharedData } from "../../SharedData/SharedContext";
+import { ServerUrl } from "../../ServerUrl/ServerUrl";
 
-const AddItemModal = () => {
+const AddItemModal = ({reloadData, setReloadData}) => {
     const [tempImg, setTempImg] = useState(null);
     const [axiosSecure] = useAxiosSecure();
     const { user } = useContext(SharedData);
     const [titleUnique, setTitleUnique] = useState([]);
+    const [allCategory, setAllCategory] = useState([]);
+    const [selectedCategory, setSelectedCategory]= useState(null);
+
+    useEffect(() => {
+        if (user) {
+            fetch(`${ServerUrl}/get-category`)
+                .then((res) => res.json())
+                .then((data) => {
+                    setAllCategory(data);
+                })
+                .catch((error) => {
+                    toast.error(error.message);
+                });
+        }
+    }, [user, reloadData]);
+
+    useEffect(()=>{
+        if(user){
+            fetch(`${ServerUrl}/get-products`,{
+                method: "POST",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({category: selectedCategory})
+            })
+        }
+    },[user,selectedCategory])
 
     const handleCancel = () => {
         document.querySelector("#addItemForm").reset();
@@ -22,6 +50,11 @@ const AddItemModal = () => {
         const title = form.title.value;
         const price = form.price.value;
         const description = form.description.value;
+        const category = form.category.value;
+        if(category==="default"){
+            toast.error("Please select a category");
+            return;
+        }
         if (!tempImg) {
             toast.error("Please upload a image");
             return;
@@ -39,13 +72,24 @@ const AddItemModal = () => {
             .then((imgData) => {
                 if (imgData.success) {
                     console.log(imgData);
-                    axiosSecure.post(`/admin/add-item?user=${user?.email}`, {
+                    axiosSecure.post(`/admin/add-product?user=${user?.email}`, {
                         title,
                         price,
                         description,
                         imgLink: imgData?.data?.url,
-                    });
-                    handleCancel();
+                        category
+                    })
+                    .then(res=>res.data)
+                    .then((data)=>{
+                        if(data.acknowledged){
+                            document.getElementById("addItemForm").reset();
+                            setReloadData(!reloadData);
+                            toast.success("Item added successfully");
+                        }
+                    })
+                    .catch(error=>{
+                        toast.error(error.message);
+                    })
                 } else {
                     toast.error(imgData.message);
                 }
@@ -53,7 +97,6 @@ const AddItemModal = () => {
             .catch((error) => {
                 toast.error(error.message);
             });
-        console.log(title, price, description);
     };
     const handleItemImage = (e) => {
         // Add image to the tempImg state
@@ -84,6 +127,10 @@ const AddItemModal = () => {
         // }
     };
 
+    const categoryChange= e=>{
+        setSelectedCategory(e.target.value);
+    }
+
     return (
         <div
             className="modal fade"
@@ -91,7 +138,7 @@ const AddItemModal = () => {
             data-bs-backdrop="static"
             data-bs-keyboard="false"
         >
-            <div className="modal-dialog modal-dialog-centered ">
+            <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div className="modal-content">
                     <div
                         className="modal-header"
@@ -152,11 +199,26 @@ const AddItemModal = () => {
                                 </div>
                             </div>
                             <div className="mt-2">
-                                <label htmlFor="Category" className="form-label mb-1">Category:</label>
+                                <label
+                                    htmlFor="Category"
+                                    className="form-label mb-1"
+                                >
+                                    Category:
+                                </label>
                                 <div className="input-group">
-                                    <select name="category" id="category" className="form-select" defaultValue={'default'}>
-                                        <option value="default" disabled>---Select a category---</option>
-                                        
+                                    <select
+                                        name="category"
+                                        id="category"
+                                        className="form-select"
+                                        defaultValue={"default"}
+                                        onChange={(data)=>categoryChange(data)}
+                                    >
+                                        <option value="default" disabled>
+                                            ---Select a category---
+                                        </option>
+                                        {
+                                            allCategory.map((item, index)=><option value={item?.name} key={index}>{item?.name}</option>)
+                                        }
                                     </select>
                                 </div>
                             </div>
