@@ -12,6 +12,7 @@ const AddItemModal = ({reloadData, setReloadData}) => {
     const [titleUnique, setTitleUnique] = useState([]);
     const [allCategory, setAllCategory] = useState([]);
     const [selectedCategory, setSelectedCategory]= useState(null);
+    const[allProducts, setAllProducts]= useState([]);
 
     useEffect(() => {
         if (user) {
@@ -27,13 +28,22 @@ const AddItemModal = ({reloadData, setReloadData}) => {
     }, [user, reloadData]);
 
     useEffect(()=>{
-        if(user){
-            fetch(`${ServerUrl}/get-products`,{
+        if(user && selectedCategory){
+            fetch(`${ServerUrl}/admin/get-products?user=${user?.email}`,{
                 method: "POST",
                 headers: {
+                    authorization: `Bearer ${localStorage.getItem("token")}`,
                     "content-type": "application/json"
                 },
                 body: JSON.stringify({category: selectedCategory})
+            })
+            .then(res=>res.json())
+            .then(data=>{
+                console.log("all products from add item modal",data);
+                setAllProducts(data);
+            })
+            .catch(error=>{
+                toast.error(error?.message);
             })
         }
     },[user,selectedCategory])
@@ -48,7 +58,7 @@ const AddItemModal = ({reloadData, setReloadData}) => {
         // Add item to the allItem state
         const form = e.target;
         const title = form.title.value;
-        const price = form.price.value;
+        const price = parseInt(form.price.value);
         const description = form.description.value;
         const category = form.category.value;
         if(category==="default"){
@@ -61,6 +71,14 @@ const AddItemModal = ({reloadData, setReloadData}) => {
         }
         const formData = new FormData();
         formData.append("image", tempImg);
+        if(allProducts.length!==0){
+            const isTitleUniqueStatus = allProducts.find((searchData)=>searchData?.title=== title);
+            if(isTitleUniqueStatus){
+                toast.error("Title already exists");
+                return;
+            }
+        }
+        console.log(formData, title, price, description, category);
         fetch(
             `https://api.imgbb.com/1/upload?key=${process.env.REACT_APP_imgBB}`,
             {
@@ -83,6 +101,7 @@ const AddItemModal = ({reloadData, setReloadData}) => {
                     .then((data)=>{
                         if(data.acknowledged){
                             document.getElementById("addItemForm").reset();
+                            setTempImg(null);
                             setReloadData(!reloadData);
                             toast.success("Item added successfully");
                         }
@@ -116,16 +135,7 @@ const AddItemModal = ({reloadData, setReloadData}) => {
         }
     };
 
-    const handleTitleChange = async (e) => {
-        console.log(e.target.value);
-        // if (titleUnique.length === 0) {
-        //     const response = await axiosSecure.get(
-        //         `/admin/add-item/title-check?user${user}`
-        //     );
-        //     const data = await response.json();
-        //     console.log(data);
-        // }
-    };
+    
 
     const categoryChange= e=>{
         setSelectedCategory(e.target.value);
@@ -172,9 +182,6 @@ const AddItemModal = ({reloadData, setReloadData}) => {
                                         placeholder="Enter item title"
                                         required
                                         autoComplete="off"
-                                        onChange={(data) =>
-                                            handleTitleChange(data)
-                                        }
                                     />
                                 </div>
                             </div>

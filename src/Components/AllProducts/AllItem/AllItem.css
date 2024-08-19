@@ -4,3 +4,13 @@
     border-radius: 10px;
     color: blue;
 }
+.optionHover:hover{
+    border: 1px solid orange;
+    border-radius: 5px;
+    padding: 4px 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}

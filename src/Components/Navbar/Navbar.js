@@ -4,12 +4,9 @@ import "./Navbar.css";
 
 const Navbar = () => {
     return (
-        <nav
-            className="navbar navbar-expand-lg"
-            
-        >
+        <nav className="navbar navbar-expand-lg">
             <div className="container-fluid">
-                <Link className="navbar-brand" to={'/'}>
+                <Link className="navbar-brand" to={"/"}>
                     <img src="https://i.ibb.co/G3c5DM7/logo.png" alt="" />
                 </Link>
                 <button
@@ -33,14 +30,15 @@ const Navbar = () => {
                                 <Link
                                     className="nav-link active"
                                     aria-current="page"
-                                    href="#"
+                                    to={'/'}
+                                    title="Home"
                                 >
-                                    Home
+                                    <i className="bi bi-house-door-fill fs-4"></i>
                                 </Link>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link" href="#">
-                                    About
+                                <Link className="nav-link" to={"/cart"} title="cart">
+                                    <i className="bi bi-cart-fill fs-4"></i>
                                 </Link>
                             </li>
                             <li className="nav-item dropdown">
@@ -57,7 +55,7 @@ const Navbar = () => {
                                     <li>
                                         <Link
                                             className="dropdown-item"
-                                            to={'/admin'}
+                                            to={"/admin"}
                                         >
                                             Admin
                                         </Link>
@@ -91,7 +89,7 @@ const Navbar = () => {
                                     Disabled
                                 </Link>
                             </li>
-                        </ul>                        
+                        </ul>
                     </div>
                 </div>
             </div>

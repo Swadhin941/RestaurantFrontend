@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ServerUrl } from "../../ServerUrl/ServerUrl";
 import toast from "react-hot-toast";
 import Spinner from "../../Spinner/Spinner";
 import "./AllCategory.css";
+import { useNavigate } from "react-router-dom";
+import { SharedData } from "../../SharedData/SharedContext";
 
 const AllCategories = () => {
     const [allCategory, setAllCategory] = useState([]);
     const [allStoredCategory, setAllStoredCategory] = useState([]);
     const [dataLoading, setDataLoading] = useState(false);
     const [dataLimit, setDataLimit] = useState(true);
+    const navigate = useNavigate();
+    const {user}= useContext(SharedData);
 
 
     useEffect(() => {
@@ -53,7 +57,7 @@ const AllCategories = () => {
                             className="col-6 col-sm-4 col-md-3 col-lg-2"
                             key={index}
                         >
-                            <div className="categoryHover">
+                            <div className="categoryHover" onClick={()=>{navigate(`/specific-category/${item?.name}`); sessionStorage.setItem("user", user?.email || undefined)}}>
                                 <div className="categoryTopImg"
                                 >
                                     <img

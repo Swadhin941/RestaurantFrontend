@@ -3,10 +3,11 @@ import "./Register.css";
 import { SharedData } from "../SharedData/SharedContext";
 import toast from "react-hot-toast";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ServerUrl } from "../ServerUrl/ServerUrl";
 
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
-    const { user, register, setLoading } = useContext(SharedData);
+    const { user, register, setLoading, setUser } = useContext(SharedData);
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from?.pathname || '/';
@@ -25,11 +26,54 @@ const Register = () => {
         const email = form.email.value;
         const password = form.password.value;
         const cPassword = form.cPassword.value;
+        const role = "regular";
         if (password !== cPassword) {
             toast.error("Password do not match");
             return;
         }
-        //regex matching
+        if(password.length< 6){
+            toast.error("Password should be at least 6 characters long");
+            return;
+        }
+        if(!/(?=.*[A-Z].*[a-z].*[0-9])/.test(password)){
+            toast.error("Password should contain at least one uppercase letter, one lowercase letter, and one number");
+            return;
+        }
+
+        fetch(`${ServerUrl}/auth/register`,{
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({fullName, email, password, role})
+        })
+        .then(res=>res.json())
+        .then(data=>{
+            if(data.acknowledged){
+                fetch(`${ServerUrl}/auth/jwt`,{
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify({email, role})
+                })
+                .then(res=>res.json())
+                .then(jwtResponse=>{
+                    if(jwtResponse?.token){
+                        localStorage.setItem("token", jwtResponse?.token);
+                        setLoading(false);
+                        setUser({fullName, email, role})
+                    }
+                })
+                .catch(error=>{
+                    toast.error(error.message);
+                })
+            }
+        })
+        .catch(error=>{
+            toast.error(error.message);
+        })
+
     };
 
     return (

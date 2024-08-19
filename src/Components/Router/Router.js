@@ -9,6 +9,11 @@ import AllProducts from "../AllProducts/AllProducts";
 import PageNotFound from "../PageNotFound/PageNotFound";
 import Forbidden from "../Forbidden/Forbidden";
 import AdminRoute from "../PrivateRoute/AdminRoute/AdminRoute";
+import ProductDetails from "../ProductDetails/ProductDetails";
+import { ServerUrl } from "../ServerUrl/ServerUrl";
+import SpecificProducts from "../SpecificProducts/SpecificProducts";
+import Cart from "../ Cart/Cart";
+import PrivateRoute from "../PrivateRoute/PrivateRoute/PrivateRoute";
 const Router = createBrowserRouter([
     {
         path: "/",
@@ -25,6 +30,36 @@ const Router = createBrowserRouter([
             {
                 path: "/register",
                 element: <Register></Register>,
+            },
+            {
+                path: "/product-details/:id",
+                element: <ProductDetails></ProductDetails>,
+                loader: async ({ params }) => {
+                    return fetch(`${ServerUrl}/product-details/${params.id}`);
+                },
+            },
+            {
+                path: "/specific-category/:name",
+                element: <SpecificProducts></SpecificProducts>,
+                loader: async ({ params }) => {
+                    return fetch(`${ServerUrl}/get-products`, {
+                        method: "POST",
+                        headers: {
+                            "content-type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            category: params.name,
+                        }),
+                    });
+                },
+            },
+            {
+                path: "/cart",
+                element: (
+                    <PrivateRoute>
+                        <Cart></Cart>
+                    </PrivateRoute>
+                ),
             },
         ],
     },
@@ -46,7 +81,11 @@ const Router = createBrowserRouter([
             },
             {
                 path: "/admin/all-products",
-                element: <AdminRoute><AllProducts></AllProducts></AdminRoute>,
+                element: (
+                    <AdminRoute>
+                        <AllProducts></AllProducts>
+                    </AdminRoute>
+                ),
             },
         ],
     },

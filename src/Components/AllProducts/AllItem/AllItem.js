@@ -5,12 +5,20 @@ import useAxiosSecure from "../../CustomHook/useAxiosSecure/useAxiosSecure";
 import { SharedData } from "../../SharedData/SharedContext";
 import toast from "react-hot-toast";
 import Spinner from "../../Spinner/Spinner";
+import EditItemModal from "../../Modals/EditItemModal/EditItemModal";
+import ConfirmModal from "../../Modals/ConfirmModal/ConfirmModal";
+import { useNavigate } from "react-router-dom";
 
 const AllItem = ({ reloadData, setReloadData }) => {
     const [allItem, setAllItem] = useState([]);
     const { user } = useContext(SharedData);
     const [dataLoading, setDataLoading] = useState(false);
     const [axiosSecure] = useAxiosSecure();
+    const [selectedItem, setSelectedItem]= useState(null);
+    const navigate = useNavigate();
+
+   
+
     useEffect(() => {
         if (user) {
             setDataLoading(true);
@@ -27,6 +35,27 @@ const AllItem = ({ reloadData, setReloadData }) => {
                 });
         }
     }, [user, reloadData]);
+
+    const handleDelete = (deleteData)=>{
+        axiosSecure.delete(`/admin/delete-item?user=${user?.email}`,{
+            data: {
+                id: deleteData?._id
+            }
+        })
+        .then(res=>res.data)
+        .then(data=>{
+            if(data?.deletedCount>0){
+                toast.success("Item deleted successfully");
+                setReloadData(!reloadData);
+            }
+        })
+        .catch(error=>{
+            toast.error(error?.message);
+        })
+    }
+
+
+
     return (
         <div className="container-fluid ps-0 pe-0">
             {dataLoading ? (
@@ -70,50 +99,76 @@ const AllItem = ({ reloadData, setReloadData }) => {
                                                     className="col-12 col-sm-6 col-md-4 col-lg-4"
                                                     key={index2}
                                                 >
-                                                    <div
-                                                        className="card border border-0"
-                                                        style={{
-                                                            backgroundColor:
-                                                                "yellowgreen",
-                                                        }}
-                                                    >
-                                                        <div className="card-body">
-                                                            <img
-                                                                src={
-                                                                    item2?.imgLink
-                                                                }
-                                                                alt=""
-                                                                className="img-fluid"
-                                                            />
-                                                            <h5
-                                                                className="mt-2"
-                                                                style={{
-                                                                    fontWeight:
-                                                                        "600",
-                                                                    fontSize:
-                                                                        item2
-                                                                            ?.title
-                                                                            .length >=
-                                                                        30
-                                                                            ? "16px"
-                                                                            : "20px",
-                                                                }}
-                                                            >
-                                                                {item2?.title}
-                                                            </h5>
-                                                        </div>
-                                                        <div
-                                                            className="card-footer"
-                                                            style={{
-                                                                borderTop:
-                                                                    "0px",
-                                                                backgroundColor:
-                                                                    "yellowgreen",
-                                                            }}
-                                                        >
-                                                            <button className="btn btn-warning w-100">
-                                                                View Details
-                                                            </button>
+                                                    <div className="card">
+                                                        <div className="row">
+                                                            <div className="col-6 col-sm-6 col-md-4 col-lg-5">
+                                                                <div
+                                                                    style={{
+                                                                        height: "60px",
+                                                                        width: "100%",
+                                                                    }}
+                                                                >
+                                                                    <img
+                                                                        src={
+                                                                            item2?.imgLink
+                                                                        }
+                                                                        alt=""
+                                                                        className="img-fluid"
+                                                                        style={{
+                                                                            height: "100%",
+                                                                            width: "100%",
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="col-6 col-sm-6 col-md-8 col-lg-7">
+                                                                <div>
+                                                                    <h6
+                                                                        className="mt-2 text-center"
+                                                                        style={{
+                                                                            fontWeight:
+                                                                                "600",
+                                                                            fontSize:
+                                                                                item2
+                                                                                    ?.title
+                                                                                    .length >=
+                                                                                30
+                                                                                    ? "16px"
+                                                                                    : "14px",
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            item2?.title
+                                                                        }
+                                                                    </h6>
+                                                                </div>
+                                                                <div className="d-flex justify-content-center">
+                                                                    <div title="view details" onClick={()=>navigate(`/product-details/${item2._id}`)}>
+                                                                        <i
+                                                                            className="bi bi-eye-fill mx-2 d-block"
+                                                                            style={{
+                                                                                cursor: "pointer",
+                                                                            }}
+                                                                        ></i>
+                                                                    </div>
+                                                                    <div title="edit" className="" data-bs-target="#EditItemModal" data-bs-toggle="modal" onClick={()=>setSelectedItem(item2)}>
+                                                                        <i
+                                                                            className="bi bi-pencil-fill me-2 d-block"
+                                                                            style={{
+                                                                                cursor: "pointer",
+                                                                            }}
+                                                                        ></i>
+                                                                    </div>
+                                                                    <div title="remove" className="" onClick={()=>handleDelete(item2)}>
+                                                                        <i
+                                                                            className="bi bi-trash-fill d-block"
+                                                                            style={{
+                                                                                cursor: "pointer",
+                                                                            }}
+                                                                        ></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -140,8 +195,11 @@ const AllItem = ({ reloadData, setReloadData }) => {
                     ))}
                 </div>
             )}
-
-            <AddItemModal reloadData={reloadData} setReloadData={setReloadData}></AddItemModal>
+            <EditItemModal selectedItem={selectedItem} setSelectedItem={setSelectedItem}></EditItemModal>
+            <AddItemModal
+                reloadData={reloadData}
+                setReloadData={setReloadData}
+            ></AddItemModal>
         </div>
     );
 };
