@@ -118,6 +118,26 @@ const Cart = () => {
             });
     };
 
+    const handleCheckout= (item)=>{
+        axiosSecure.post(`/api/payment?user=${user?.email}`,{
+            allItem: [...item],
+            totalAmount: totalPrice,
+            timeInMill: Date.now(),
+            dateString: new Date().toLocaleDateString(),
+            currentMonth: new Date().toLocaleString("default",{month: "long"}),
+            user: user?.email
+        })
+        .then(res=>res.data)
+        .then(data=>{
+            if(data?.url){
+                window.location.replace(data.url);
+            }
+        })
+        .catch(error=>{
+            toast.error(error?.message);
+        })
+    }
+
     return (
         <div className="container-fluid">
             {allCart.length === 0 ? (
@@ -130,8 +150,8 @@ const Cart = () => {
                 </div>
             ) : (
                 <div>
-                    <div style={{ height: "100vh" }}>
-                        <div className="row">
+                    <div style={{ height: "100vh", overflow:"auto", overflowX:"hidden", overflowY:"auto" }}>
+                        <div className="row g-2">
                             {allCart.map((item, index) => (
                                 <div
                                     className="col-12 col-sm-12 col-md-12 col-lg-12"
@@ -259,7 +279,7 @@ const Cart = () => {
                                     {totalPrice} Taka
                                 </span>
                             </h2>
-                            <button className="btn btn-primary w-100">
+                            <button className="btn btn-primary w-100" onClick={()=>handleCheckout(allCart)}>
                                 Checkout
                             </button>
                         </div>

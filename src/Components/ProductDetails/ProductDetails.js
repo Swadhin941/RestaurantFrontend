@@ -17,38 +17,86 @@ const ProductDetails = () => {
     const { user } = useContext(SharedData);
     const [axiosSecure] = useAxiosSecure();
     const loaderData = useLoaderData();
-    const [detailsData, setDetailsData]= useState({...loaderData});
+    const [detailsData, setDetailsData] = useState({ ...loaderData });
     const navigation = useNavigation();
     const location = useLocation();
     const navigate = useNavigate();
     const [dataLoading, setDataLoading] = useState(false);
     const handleIncClick = () => {
-        setQuantityCounter(quantityCounter + 1);
+        const cartStatus = detailsData.cart ? true : false;
+        if (cartStatus) {
+            axiosSecure
+                .put(`/product-quantity/inc?user=${user?.email}`, {
+                    cartId: detailsData.cartId,
+                    quantity: detailsData?.quantity + 1,
+                })
+                .then((res) => res.data)
+                .then((data) => {
+                    if (data?.modifiedCount >= 1) {
+                        setDetailsData({
+                            ...detailsData,
+                            quantity: parseInt(detailsData?.quantity) + 1,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    toast.error(error.message);
+                });
+        } else {
+            setQuantityCounter(quantityCounter + 1);
+        }
     };
 
     useEffect(() => {
-        if (user && detailsData?.title !== undefined) {
+        if(user && detailsData._id){
             axiosSecure.post(`/cart-check?user=${user?.email}`,{
-                _id: detailsData?._id
+                productId: detailsData._id,
+                category: detailsData.category,
             })
             .then(res=>res.data)
             .then(data=>{
-                const temp = {...detailsData, cart: data.status};
-                setDetailsData(temp)
+                if(data?.cartId){
+                    setDetailsData({...detailsData, cartId: data?.cartId, quantity: data?.quantity, cart: true});
+                }
             })
             .catch(error=>{
                 toast.error(error.message);
             })
-
         }
-    }, [user,detailsData]);
+    }, [user]);
 
     const handleDecClick = () => {
-        if (quantityCounter === 1) {
-            toast.error("Quantity cannot be less than 1");
-            return;
+        const cartStatus = detailsData.cart ? true : false;
+        if (cartStatus) {
+            if (detailsData?.quantity === 1) {
+                toast.error("Quantity cannot be less than 1");
+                return;
+            } else {
+                axiosSecure
+                    .put(`/product-quantity/dec?user=${user?.email}`, {
+                        cartId: detailsData.cartId,
+                        quantity: detailsData?.quantity - 1,
+                    })
+                    .then((res) => res.data)
+                    .then((data) => {
+                        if (data.modifiedCount >= 1) {
+                            setDetailsData({
+                                ...detailsData,
+                                quantity: detailsData?.quantity - 1,
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        toast.error(error?.message);
+                    });
+            }
         } else {
-            setQuantityCounter(quantityCounter - 1);
+            if (quantityCounter === 1) {
+                toast.error("Quantity cannot be less than 1");
+                return;
+            } else {
+                setQuantityCounter(quantityCounter - 1);
+            }
         }
     };
 
@@ -60,18 +108,26 @@ const ProductDetails = () => {
         if (!user) {
             navigate("/login", { replace: true });
         } else {
+            let temp = {
+                ...detailsData,
+                quantity: quantityCounter,
+                user: user?.email,
+            };
+            temp.productId= detailsData?._id;
+            delete temp._id;
             axiosSecure
                 .post(`/add-cart?user=${user}`, {
-                    productId: loaderData._id,
-                    quantity: quantityCounter,
-                    user: user?.email,
+                    ...temp,
                 })
                 .then((res) => res.data)
                 .then((data) => {
                     if (data?.cartId) {
-                        const temp = {...detailsData, cart: true};
-                        setDetailsData(temp);
-                        toast.success("Product added to cart successfully");
+                        setDetailsData({
+                            ...detailsData,
+                            cart: true,
+                            cartId: data.cartId,
+                            quantity: quantityCounter,
+                        });
                     }
                 })
                 .catch((error) => {
@@ -80,28 +136,29 @@ const ProductDetails = () => {
         }
     };
 
-    const handleRemoveCart= ()=>{
-        axiosSecure.delete(`/remove-cart?user=${user?.email}`, {
-            data: {
-                productId: detailsData._id,
-                user: user?.email,
-            }
-        })
-        .then(res=>res.data)
-        .then(data=>{
-            if(data.deletedCount>=1){
-                const temp = {...detailsData, cart: false};
-                setDetailsData(temp);
-                toast.success("Product removed from cart successfully");
-            }
-        })
-        .catch(error=>{
-            toast.error(error.message);
-        })
-    }
+    const handleRemoveCart = () => {
+        axiosSecure
+            .delete(`/remove-cart?user=${user?.email}`, {
+                data: {
+                    productId: detailsData?.cartId,
+                    user: user?.email,
+                },
+            })
+            .then((res) => res.data)
+            .then((data) => {
+                if (data.deletedCount >= 1) {
+                    const temp = { ...detailsData, cart: false };
+                    setDetailsData(temp);
+                    toast.success("Product removed from cart successfully");
+                }
+            })
+            .catch((error) => {
+                toast.error(error.message);
+            });
+    };
 
     return (
-        <div className="container-fluid">
+        <div className="container-fluid mb-3">
             <div className="row">
                 <div className="col-sm-12 col-md-6 col-lg-4">
                     <img
@@ -129,7 +186,7 @@ const ProductDetails = () => {
                                     <i className="bi bi-dash"></i>
                                 </div>
                                 <div className="input-field">
-                                    {quantityCounter}
+                                    {detailsData?.quantity || quantityCounter}
                                 </div>
                                 <div
                                     className="div-plus"
@@ -140,8 +197,11 @@ const ProductDetails = () => {
                             </div>
                         </div>
                         <div className="my-3">
-                            {detailsData?.cart=== true ? (
-                                <button className="btn btn-warning" onClick={handleRemoveCart}>
+                            {detailsData?.cart === true ? (
+                                <button
+                                    className="btn btn-warning"
+                                    onClick={handleRemoveCart}
+                                >
                                     Remove from cart
                                 </button>
                             ) : (

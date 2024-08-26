@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { SharedData } from "../../SharedData/SharedContext";
+import toast from "react-hot-toast";
 
 const useAxiosSecure = () => {
     const { logout } = useContext(SharedData);

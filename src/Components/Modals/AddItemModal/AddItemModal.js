@@ -78,7 +78,7 @@ const AddItemModal = ({reloadData, setReloadData}) => {
                 return;
             }
         }
-        console.log(formData, title, price, description, category);
+        // console.log(formData, title, price, description, category);
         fetch(
             `https://api.imgbb.com/1/upload?key=${process.env.REACT_APP_imgBB}`,
             {

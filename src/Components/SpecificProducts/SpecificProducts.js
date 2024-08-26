@@ -123,6 +123,7 @@ const SpecificProducts = () => {
             let temp = { ...item, quantity: quantity, user: user?.email };
             temp.productId = item?._id;
             delete temp._id;
+            delete temp.cart;
             axiosSecure
                 .post(`/add-cart?user=${user}`, {
                     ...temp,

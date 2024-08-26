@@ -14,10 +14,13 @@ import { ServerUrl } from "../ServerUrl/ServerUrl";
 import SpecificProducts from "../SpecificProducts/SpecificProducts";
 import Cart from "../ Cart/Cart";
 import PrivateRoute from "../PrivateRoute/PrivateRoute/PrivateRoute";
+import Profile from "../Profile/Profile";
+import ErrorPage from "../ErrorPage/ErrorPage";
 const Router = createBrowserRouter([
     {
         path: "/",
         element: <Root></Root>,
+        errorElement: <ErrorPage></ErrorPage>,
         children: [
             {
                 path: "/",
@@ -61,6 +64,10 @@ const Router = createBrowserRouter([
                     </PrivateRoute>
                 ),
             },
+            {
+                path: "/my-profile",
+                element: <PrivateRoute><Profile></Profile></PrivateRoute>
+            }
         ],
     },
     {

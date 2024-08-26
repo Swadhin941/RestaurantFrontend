@@ -1,8 +1,11 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
+import { SharedData } from "../SharedData/SharedContext";
 
 const Navbar = () => {
+    const {user}= useContext(SharedData);
+    const navigate = useNavigate();
     return (
         <nav className="navbar navbar-expand-lg">
             <div className="container-fluid">
@@ -30,64 +33,31 @@ const Navbar = () => {
                                 <Link
                                     className="nav-link active"
                                     aria-current="page"
-                                    to={'/'}
+                                    to={"/"}
                                     title="Home"
                                 >
                                     <i className="bi bi-house-door-fill fs-4"></i>
                                 </Link>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link" to={"/cart"} title="cart">
+                                <Link
+                                    className="nav-link"
+                                    to={"/cart"}
+                                    title="cart"
+                                >
                                     <i className="bi bi-cart-fill fs-4"></i>
                                 </Link>
                             </li>
-                            <li className="nav-item dropdown">
-                                <Link
-                                    className="nav-link dropdown-toggle"
-                                    href="#"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                    Dropdown
-                                </Link>
-                                <ul className="dropdown-menu">
-                                    <li>
-                                        <Link
-                                            className="dropdown-item"
-                                            to={"/admin"}
-                                        >
-                                            Admin
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <Link
-                                            className="dropdown-item"
-                                            href="#"
-                                        >
-                                            Another action
-                                        </Link>
-                                    </li>
-                                    <li>
-                                        <hr className="dropdown-divider" />
-                                    </li>
-                                    <li>
-                                        <Link
-                                            className="dropdown-item"
-                                            href="#"
-                                        >
-                                            Something else here
-                                        </Link>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li className="nav-item">
-                                <Link
-                                    className="nav-link disabled"
-                                    aria-disabled="true"
-                                >
-                                    Disabled
-                                </Link>
+
+                            <li className="nav-item p-2 profile-item" style={{}} onClick={()=>navigate("/my-profile")}>
+                                <img
+                                    src={
+                                        user?.imgLink ||
+                                        `https://i.ibb.co/bmVqbdY/empty-person.jpg`
+                                    }
+                                    alt=""
+                                    style={{height:"30px", width:"30px", borderRadius:"50%"}}
+                                />
                             </li>
                         </ul>
                     </div>

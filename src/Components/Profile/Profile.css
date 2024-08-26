@@ -1,0 +1,35 @@
+@media screen and (max-width: 576px) {
+    
+}
+
+@media (min-width: 577px) and (max-width: 767px) {
+    
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+    
+}
+
+@media (min-width: 992px) and (max-width: 1200px){
+
+}
+
+@media screen and (min-width: 1201px) {
+    .profile-content-div{
+        display: flex;
+        justify-content: center;
+    }
+    .profile-content-img-container{
+        width: 200px;
+        height: 200px;
+    }
+    .profile-content-img-container img{
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+    }
+    .profile-content-info{
+        display: flex;
+        justify-content: center;
+    }
+}

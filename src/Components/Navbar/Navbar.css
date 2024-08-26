@@ -1,36 +1,97 @@
 @media screen and (max-width: 576px) {
-    
+    .nav-item {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .nav-item:hover {
+        background-color: rgb(219, 219, 219);
+    }
+    .profile-item {
+        cursor: pointer;
+    }
 }
 
 @media (min-width: 577px) and (max-width: 767px) {
-    
+    .nav-item {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .nav-item:hover {
+        background-color: rgb(219, 219, 219);
+    }
+    .profile-item {
+        cursor: pointer;
+    }
 }
 
 @media (min-width: 768px) and (max-width: 992px) {
-    
+    .nav-item {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .nav-item:hover {
+        background-color: rgb(219, 219, 219);
+    }
+    .profile-item {
+        cursor: pointer;
+    }
 }
 
-@media (min-width: 993px) and (max-width: 1200px) {
-    
-}
-
-@media screen and (min-width: 1201px){
-    .nav-content{
+@media (min-width: 992px) and (max-width: 1200px) {
+    .nav-content {
         width: 100%;
         display: flex;
         justify-content: end;
     }
-    .navbar .container-fluid{
+    .navbar .container-fluid {
         margin-right: 10%;
         margin-left: 10%;
     }
-    .nav-content a{
+    .nav-content a {
         margin-left: 1.1rem;
         margin-right: 1.1rem;
         font-weight: 600;
     }
-    .nav-item:hover{
+    .nav-item {
+        margin: 0px;
+    }
+    .nav-item:hover {
         border: 1px solid orange;
         border-radius: 5px;
+    }
+    .profile-item {
+        cursor: pointer;
+        margin-left: 0.60rem;
+    }
+}
+
+@media screen and (min-width: 1201px) {
+    .nav-content {
+        width: 100%;
+        display: flex;
+        justify-content: end;
+    }
+    .navbar .container-fluid {
+        margin-right: 10%;
+        margin-left: 10%;
+    }
+    .nav-content a {
+        margin-left: 1.1rem;
+        margin-right: 1.1rem;
+        font-weight: 600;
+    }
+    .nav-item {
+        margin: 0px;
+    }
+    .nav-item:hover {
+        border: 1px solid orange;
+        border-radius: 5px;
+    }
+    .profile-item {
+        cursor: pointer;
+        margin-left: 0.60rem;
     }
 }
