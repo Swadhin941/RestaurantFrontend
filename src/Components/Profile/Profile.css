@@ -32,4 +32,12 @@
         display: flex;
         justify-content: center;
     }
+    .empty-data-profile{
+        height: 500px;
+        width: 100%;
+    }
+    .empty-data-profile img{
+        width: 100%;
+        height: 100%;
+    }
 }

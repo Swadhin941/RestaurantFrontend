@@ -1,16 +1,21 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { SharedData } from "../../SharedData/SharedContext";
 import { Navigate, useLocation } from "react-router-dom";
 import Spinner from "../../Spinner/Spinner";
 
 const ChefRoute = ({ children }) => {
-    const { user, loading } = useContext(SharedData);
+    const { user, loading, setUser } = useContext(SharedData);
     const location = useLocation();
+    useEffect(() => {
+        if (!loading && (user?.role !== "admin" && user?.role !== "chef")) {
+            setUser(null);
+        }
+    }, [loading, user]);
 
     if (loading) {
         return <Spinner></Spinner>;
     }
-    if (user && user?.role === "chef") {
+    if (user && user?.email) {
         return children;
     }
 

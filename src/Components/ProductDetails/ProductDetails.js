@@ -11,6 +11,7 @@ import "./ProductDetails.css";
 import toast from "react-hot-toast";
 import { SharedData } from "../SharedData/SharedContext";
 import useAxiosSecure from "../CustomHook/useAxiosSecure/useAxiosSecure";
+import FeedbackModal from "../Modals/FeedbackModal/FeedbackModal";
 
 const ProductDetails = () => {
     const [quantityCounter, setQuantityCounter] = useState(1);
@@ -22,6 +23,28 @@ const ProductDetails = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [dataLoading, setDataLoading] = useState(false);
+    const [feedbackData, setFeedbackData] = useState(null);
+    const [allFeedback, setAllFeedback] = useState([]);
+    const [reload, setReload]= useState(true);
+
+    useEffect(()=>{
+        if(loaderData?._id){
+            axiosSecure.post('/specific-products-rating',{
+                productId: loaderData._id
+            })
+            .then(res=>res.data)
+            .then(data=>{
+                if(data){
+                    const temp = {...loaderData, ...data};
+                    setDetailsData(temp);
+                }
+            })
+            .catch(error=>{
+                toast.error(error.message);
+            })
+        }
+    },[loaderData, reload])
+
     const handleIncClick = () => {
         const cartStatus = detailsData.cart ? true : false;
         if (cartStatus) {
@@ -48,22 +71,95 @@ const ProductDetails = () => {
     };
 
     useEffect(() => {
-        if(user && detailsData._id){
-            axiosSecure.post(`/cart-check?user=${user?.email}`,{
-                productId: detailsData._id,
-                category: detailsData.category,
+        setDataLoading(true);
+        axiosSecure
+            .get(`/feedback/all?productId=${loaderData._id}`)
+            .then((res) => res.data)
+            .then((data) => {
+                setDataLoading(false);
+                setAllFeedback(data);
             })
-            .then(res=>res.data)
-            .then(data=>{
-                if(data?.cartId){
-                    setDetailsData({...detailsData, cartId: data?.cartId, quantity: data?.quantity, cart: true});
-                }
-            })
-            .catch(error=>{
+            .catch((error) => {
+                setDataLoading(false);
                 toast.error(error.message);
-            })
+            });
+    }, []);
+
+    useEffect(() => {
+        if (user && detailsData._id) {
+            axiosSecure
+                .post(`/cart-check?user=${user?.email}`, {
+                    productId: detailsData._id,
+                    category: detailsData.category,
+                })
+                .then((res) => res.data)
+                .then((data) => {
+                    if (data?.cartId) {
+                        setDetailsData({
+                            ...detailsData,
+                            cartId: data?.cartId,
+                            quantity: data?.quantity,
+                            cart: true,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    toast.error(error.message);
+                });
         }
     }, [user]);
+
+    useEffect(() => {
+        if (user && loaderData) {
+            axiosSecure
+                .post(`/feedback/user-product-check?user=${user?.email}`, {
+                    productId: loaderData._id,
+                })
+                .then((res) => res.data)
+                .then((data) => {
+                    const temp = { ...detailsData, purchased: data.purchase };
+                    setDetailsData(temp);
+                })
+                .catch((error) => {
+                    toast.error(error.message);
+                });
+        }
+    }, [user, loaderData]);
+
+    useEffect(() => {
+        if (feedbackData) {
+            const data = {
+                ...feedbackData,
+                productId: loaderData._id,
+                timeInMill: Date.now(),
+                date: `${
+                    new Date().getDate().toString() +
+                    " " +
+                    new Date()
+                        .toLocaleDateString("default", { month: "long" })
+                        .toString() +
+                    " " +
+                    new Date().getFullYear().toString()
+                }`,
+                reactions: [],
+            };
+            axiosSecure
+                .post(`/feedback/post?user=${user?.email}`, {
+                    ...data,
+                })
+                .then((res) => res.data)
+                .then((data) => {
+                    if (data.acknowledged) {
+                        const temp = [{ ...data }, ...allFeedback];
+                        setAllFeedback(temp);
+                        setReload(!reload);
+                    }
+                })
+                .catch((error) => {
+                    toast.error(error.message);
+                });
+        }
+    }, [user, feedbackData]);
 
     const handleDecClick = () => {
         const cartStatus = detailsData.cart ? true : false;
@@ -113,7 +209,7 @@ const ProductDetails = () => {
                 quantity: quantityCounter,
                 user: user?.email,
             };
-            temp.productId= detailsData?._id;
+            temp.productId = detailsData?._id;
             delete temp._id;
             axiosSecure
                 .post(`/add-cart?user=${user}`, {
@@ -169,6 +265,47 @@ const ProductDetails = () => {
                 </div>
                 <div className="col-sm-12 col-md-6 col-lg-8">
                     <h1>{detailsData?.title}</h1>
+                    {(detailsData.avgRating * 10) % 10 === 0 ? (
+                        <div className="">
+                            {[...Array(5).keys()].map((rating, ratingIndex) => (
+                                <i
+                                    className={`bi bi-star-fill ${
+                                        detailsData.avgRating <= ratingIndex + 1
+                                            ? "text-secondary"
+                                            : "text-warning"
+                                    }`}
+                                    key={ratingIndex}
+                                ></i>
+                            ))}
+                            <small>({detailsData.totalUserRating || "0"})</small>
+                        </div>
+                    ) : (
+                        <div className="">
+                            {[...Array(5).keys()].map((rating, ratingIndex) => (
+                                <i
+                                    className={`bi ${
+                                        ratingIndex +
+                                            1 -
+                                            parseInt(detailsData.avgRating) ===
+                                        1
+                                            ? "bi-star-half"
+                                            : "bi-star-fill"
+                                    } ${
+                                        ratingIndex +
+                                            1 -
+                                            parseInt(detailsData.avgRating) <=
+                                        1
+                                            ? "text-warning"
+                                            : "text-secondary"
+                                    }`}
+                                    key={ratingIndex}
+                                ></i>
+                            ))}
+                            <small className="text-dark fs-6 ms-1">
+                                ({detailsData?.totalUsersRating || "0"})
+                            </small>
+                        </div>
+                    )}
                     <p>{detailsData?.description}</p>
                     <p style={{ fontWeight: "600", color: "green" }}>
                         Price: {detailsData?.price} Taka
@@ -205,17 +342,125 @@ const ProductDetails = () => {
                                     Remove from cart
                                 </button>
                             ) : (
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={handleCart}
-                                >
-                                    Add to Cart
-                                </button>
+                                <>
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={handleCart}
+                                    >
+                                        Add to Cart
+                                    </button>
+                                    {detailsData?.purchased && (
+                                        <button
+                                            className="btn btn-success ms-2"
+                                            data-bs-target="#FeedbackModal"
+                                            data-bs-toggle="modal"
+                                        >
+                                            Leave feedback
+                                        </button>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>
                 </div>
             </div>
+            <div className="row mt-2">
+                {dataLoading ? (
+                    <Spinner></Spinner>
+                ) : (
+                    allFeedback.map((item, index) => (
+                        <div
+                            className="col-12 col-sm-12 col-md-12 col-lg-12"
+                            key={index}
+                        >
+                            <div className="card ps-2">
+                                <div className="d-flex">
+                                    <div
+                                        style={{
+                                            height: "30px",
+                                            width: "30px",
+                                            borderRadius: "50%",
+                                        }}
+                                    >
+                                        <img
+                                            src={
+                                                item?.imgLink
+                                                    ? item.imgLink
+                                                    : "https://i.ibb.co/bmVqbdY/empty-person.jpg"
+                                            }
+                                            alt=""
+                                            className="img-fluid"
+                                        />
+                                    </div>
+                                    <div className="ms-2 w-100">
+                                        <div className="d-flex justify-content-between">
+                                            <h6 className="text-primary mb-0">
+                                                {user?.email === item.email
+                                                    ? "You"
+                                                    : item.fullName}
+                                            </h6>
+                                            <small className="pe-2 text-success fw-bold">
+                                                {item.date}
+                                            </small>
+                                        </div>
+
+                                        <div>{item.message}</div>
+                                    </div>
+                                </div>
+                                <div className="d-flex justify-content-end">
+                                    {(item.ratingValue * 10) % 10 === 0 ? (
+                                        <div className="pe-2">
+                                            {[...Array(5).keys()].map(
+                                                (rating, ratingIndex) => (
+                                                    <i
+                                                        className={`bi bi-star-fill ${
+                                                            item.ratingValue <=
+                                                            ratingIndex + 1
+                                                                ? "text-secondary"
+                                                                : "text-warning"
+                                                        }`}
+                                                        key={ratingIndex}
+                                                    ></i>
+                                                )
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="pe-2">
+                                            {[...Array(5).keys()].map(
+                                                (rating, ratingIndex) => (
+                                                    <i
+                                                        className={`bi ${
+                                                            ratingIndex +
+                                                                1 -
+                                                                parseInt(
+                                                                    item.ratingValue
+                                                                ) ===
+                                                            1
+                                                                ? "bi-star-half"
+                                                                : "bi-star-fill"
+                                                        } ${
+                                                            ratingIndex +
+                                                                1 -
+                                                                parseInt(
+                                                                    item.ratingValue
+                                                                ) <=
+                                                            1
+                                                                ? "text-warning"
+                                                                : "text-secondary"
+                                                        }`}
+                                                        key={ratingIndex}
+                                                    ></i>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+            <FeedbackModal setFeedbackData={setFeedbackData}></FeedbackModal>
         </div>
     );
 };

@@ -1,10 +1,14 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { SharedData } from "../../SharedData/SharedContext";
 import useAxiosSecure from "../../CustomHook/useAxiosSecure/useAxiosSecure";
+import ClockLoader from "react-spinners/ClockLoader";
+import toast from "react-hot-toast";
 
 const ChangePasswordModal = () => {
     const { user, setUser } = useContext(SharedData);
     const [axiosSecure] = useAxiosSecure();
+    const [dataLoading, setDataLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -12,7 +16,34 @@ const ChangePasswordModal = () => {
         const oldPass = form.oldPassword.value;
         const newPass = form.newPassword.value;
         const confirmPass = form.confirmPassword.value;
-        console.log(oldPass, newPass, confirmPass);
+
+        if (oldPass !== user?.password) {
+            toast.error("Passwords does not matched");
+            return;
+        }
+        if(newPass !== confirmPass){
+            toast.error("passwords are not the same");
+            return;
+        }
+        setDataLoading(true);
+        axiosSecure.put(`/auth/update-user?user=${user?.email}`,{
+            password: newPass
+        })
+        .then(res=>res.data)
+        .then(data=>{
+            if(data.modifiedCount>=1){
+                let tempUser= {...user}
+                tempUser.password= newPass;
+                setUser({...tempUser});
+                form.reset();
+                setDataLoading(false);
+
+            }
+        })
+        .catch(error=>{
+            setDataLoading(false);
+            toast.error(error?.message);
+        })
     };
     return (
         <div
@@ -38,32 +69,57 @@ const ChangePasswordModal = () => {
                                 <label htmlFor="oldPassword">
                                     Old Password:
                                 </label>
-                                <input
-                                    type="password"
-                                    id="oldPassword"
-                                    className="form-control"
-                                    required
-                                    placeholder="Old password"
-                                />
+                                <div className="input-group">
+                                    <input
+                                        type="password"
+                                        id="oldPassword"
+                                        className="form-control"
+                                        required
+                                        placeholder="Old password"
+                                    />
+                                </div>
                             </div>
                             <div className="mt-2">
                                 <label htmlFor="newPassword">
                                     New Password:
                                 </label>
-                                <input
-                                    type="password"
-                                    id="newPassword"
-                                    className="form-control"
-                                    required
-                                    placeholder="New password"
-                                />
+                                <div className="input-group">
+                                    <input
+                                        type={
+                                            showPassword ? "text" : "password"
+                                        }
+                                        id="newPassword"
+                                        className="form-control"
+                                        required
+                                        placeholder="New password"
+                                        style={{ borderRight: "0px" }}
+                                    />
+                                    <span
+                                        className="input-group-text"
+                                        style={{
+                                            backgroundColor: "white",
+                                            cursor: "pointer",
+                                        }}
+                                        onClick={() =>
+                                            setShowPassword(!showPassword)
+                                        }
+                                    >
+                                        <i
+                                            className={`bi ${
+                                                showPassword
+                                                    ? "bi-eye"
+                                                    : "bi-eye-slash"
+                                            }`}
+                                        ></i>
+                                    </span>
+                                </div>
                             </div>
                             <div className="mt-2">
                                 <label htmlFor="confirmPassword">
                                     Confirm Password:
                                 </label>
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     id="confirmPassword"
                                     className="form-control"
                                     required
@@ -71,8 +127,15 @@ const ChangePasswordModal = () => {
                                 />
                             </div>
                             <div className="mt-2">
-                                <button className="btn btn-primary btn-sm w-100 border border-0">
-                                    Change
+                                <button
+                                    className="btn btn-primary btn-sm w-100 border border-0 d-flex justify-content-center"
+                                    disabled={dataLoading}
+                                >
+                                    {dataLoading ? (
+                                        <ClockLoader size={24} color="white" />
+                                    ) : (
+                                        "Change"
+                                    )}
                                 </button>
                             </div>
                         </form>

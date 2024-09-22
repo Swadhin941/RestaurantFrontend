@@ -4,7 +4,7 @@ import "./Navbar.css";
 import { SharedData } from "../SharedData/SharedContext";
 
 const Navbar = () => {
-    const {user}= useContext(SharedData);
+    const { user, logout } = useContext(SharedData);
     const navigate = useNavigate();
     return (
         <nav className="navbar navbar-expand-lg">
@@ -48,17 +48,84 @@ const Navbar = () => {
                                     <i className="bi bi-cart-fill fs-4"></i>
                                 </Link>
                             </li>
+                            {!user && (
+                                <li
+                                    className="nav-item p-2 profile-item"
+                                    style={{}}
+                                    onClick={() => navigate("/my-profile")}
+                                >
+                                    <img
+                                        src={`https://i.ibb.co/bmVqbdY/empty-person.jpg`}
+                                        alt=""
+                                        style={{
+                                            height: "30px",
+                                            width: "30px",
+                                            borderRadius: "50%",
+                                        }}
+                                    />
+                                </li>
+                            )}
 
-                            <li className="nav-item p-2 profile-item" style={{}} onClick={()=>navigate("/my-profile")}>
-                                <img
-                                    src={
-                                        user?.imgLink ||
-                                        `https://i.ibb.co/bmVqbdY/empty-person.jpg`
-                                    }
-                                    alt=""
-                                    style={{height:"30px", width:"30px", borderRadius:"50%"}}
-                                />
-                            </li>
+                            {user && (
+                                <li className="nav-item profile-item p-2">
+                                    <div className="dropdown">
+                                        <img
+                                            src={
+                                                user?.imgLink ||
+                                                `https://i.ibb.co/bmVqbdY/empty-person.jpg`
+                                            }
+                                            alt=""
+                                            className="dropdown-toggle"
+                                            style={{
+                                                height: "30px",
+                                                width: "30px",
+                                                borderRadius: "50%",
+                                            }}
+                                            data-bs-toggle="dropdown"
+                                        />
+                                        <ul
+                                            className="dropdown-menu"
+                                            style={{ backgroundColor: "gray" }}
+                                        >
+                                            <li className="">
+                                                <p
+                                                    className="dropdown-item"
+                                                    onClick={() =>
+                                                        navigate("/my-profile")
+                                                    }
+                                                >
+                                                    Profile
+                                                </p>
+                                            </li>
+                                            {(user?.role === "admin" ||
+                                                user?.role === "chef") && (
+                                                <>
+                                                    <li className="">
+                                                        <p
+                                                            className="dropdown-item"
+                                                            onClick={() =>
+                                                                navigate(
+                                                                    "/admin"
+                                                                )
+                                                            }
+                                                        >
+                                                            Admin panel
+                                                        </p>
+                                                    </li>
+                                                </>
+                                            )}
+                                            <li className="">
+                                                <p
+                                                    className="dropdown-item"
+                                                    onClick={() => logout()}
+                                                >
+                                                    Logout
+                                                </p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            )}
                         </ul>
                     </div>
                 </div>

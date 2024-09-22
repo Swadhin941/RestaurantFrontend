@@ -93,5 +93,10 @@
     .profile-item {
         cursor: pointer;
         margin-left: 0.60rem;
+        margin-top: 0.2rem;
+    }
+    .profile-item p{
+        color: whitesmoke;
+        font-weight: 600;
     }
 }

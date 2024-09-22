@@ -113,7 +113,21 @@ const SpecificProducts = () => {
     };
 
     const handleSearch = (data) => {
-        console.log(data);
+        if(data.trim().length===0){
+            setAllData(loaderData);
+            return;
+        }
+        if(data.length <=3){
+            toast.error("Please enter a valid search term");
+            return;
+        }
+        else{
+            if(data)
+            setDataLoading(true);
+            const filteredData = loaderData.filter(filterData=>filterData.title.toLowerCase()=== data.toLowerCase());
+            setAllData(filteredData);
+            setDataLoading(false);
+        }
     };
 
     const handleAddCart = (item, quantity) => {
@@ -125,7 +139,7 @@ const SpecificProducts = () => {
             delete temp._id;
             delete temp.cart;
             axiosSecure
-                .post(`/add-cart?user=${user}`, {
+                .post(`/add-cart?user=${user?.email}`, {
                     ...temp,
                 })
                 .then((res) => res.data)

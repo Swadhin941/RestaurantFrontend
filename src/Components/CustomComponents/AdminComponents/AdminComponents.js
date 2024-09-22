@@ -1,17 +1,19 @@
 const AdminComponents= ()=>{
     const adminComponents = [
         {
-            path: "/admin",
+            path: "/admin/dashboard",
             name: "Dashboard"
         },
-        {
-            path: "/",
-            name: "Home"
-        },
+        
         {
             name: "All Products",
             path: "/admin/all-products"
-        }
+        },
+        {
+            name: "All Users",
+            path: "/admin/all-users"
+        },
+        
     ];
     return adminComponents;
 }

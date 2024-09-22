@@ -39,7 +39,6 @@ const AddItemModal = ({reloadData, setReloadData}) => {
             })
             .then(res=>res.json())
             .then(data=>{
-                console.log("all products from add item modal",data);
                 setAllProducts(data);
             })
             .catch(error=>{

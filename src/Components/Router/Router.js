@@ -16,6 +16,10 @@ import Cart from "../ Cart/Cart";
 import PrivateRoute from "../PrivateRoute/PrivateRoute/PrivateRoute";
 import Profile from "../Profile/Profile";
 import ErrorPage from "../ErrorPage/ErrorPage";
+import AllUsers from "../AllUsers/AllUsers";
+import AllOrder from "../AllOrder/AllOrder";
+import AllDelivered from "../AllDelivered/AllDelivered";
+import ChefRoute from "../PrivateRoute/ChefRoute/ChefRoute";
 const Router = createBrowserRouter([
     {
         path: "/",
@@ -66,25 +70,22 @@ const Router = createBrowserRouter([
             },
             {
                 path: "/my-profile",
-                element: <PrivateRoute><Profile></Profile></PrivateRoute>
-            }
+                element: (
+                    <PrivateRoute>
+                        <Profile></Profile>
+                    </PrivateRoute>
+                ),
+            },
         ],
     },
     {
         path: "/admin",
-        element: (
-            <AdminRoute>
-                <Admin></Admin>,
-            </AdminRoute>
-        ),
+        element: <Admin></Admin>,
+        errorElement: <ErrorPage></ErrorPage>,
         children: [
             {
-                path: "/admin/",
-                element: (
-                    <AdminRoute>
-                        <AdminDashboard></AdminDashboard>
-                    </AdminRoute>
-                ),
+                path: "/admin/dashboard",
+                element: <AdminDashboard></AdminDashboard>,
             },
             {
                 path: "/admin/all-products",
@@ -92,6 +93,30 @@ const Router = createBrowserRouter([
                     <AdminRoute>
                         <AllProducts></AllProducts>
                     </AdminRoute>
+                ),
+            },
+            {
+                path: "/admin/all-users",
+                element: (
+                    <AdminRoute>
+                        <AllUsers></AllUsers>
+                    </AdminRoute>
+                ),
+            },
+            {
+                path: "/admin/",
+                element: (
+                    <ChefRoute>
+                        <AllOrder></AllOrder>
+                    </ChefRoute>
+                ),
+            },
+            {
+                path: "/admin/all-delivered",
+                element: (
+                    <ChefRoute>
+                        <AllDelivered></AllDelivered>
+                    </ChefRoute>
                 ),
             },
         ],

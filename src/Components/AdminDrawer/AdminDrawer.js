@@ -15,17 +15,23 @@ import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
+import { SharedData } from "../SharedData/SharedContext";
+
+import ChefComponents from "../CustomComponents/AdminComponents/ChefComponents";
 import AdminComponents from "../CustomComponents/AdminComponents/AdminComponents";
 
 const drawerWidth = 240;
 
 function ResponsiveDrawer(props) {
+    const { user } = useContext(SharedData);
     const { window } = props;
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const adminComponents = AdminComponents();
+    const chefComponents = ChefComponents();
+
     const handleDrawerClose = () => {
         setIsClosing(true);
         setMobileOpen(false);
@@ -46,11 +52,43 @@ function ResponsiveDrawer(props) {
             <Toolbar />
             <Divider />
             <List>
-                {adminComponents.map((text, index) => (
+                {(user?.role === "admin" || user?.role === "chef") &&
+                    chefComponents.map((item, index) => (
+                        <div key={index}>
+                            <Link
+                                to={item.path}
+                                style={{
+                                    color: "black",
+                                    textDecoration: "none",
+                                }}
+                            >
+                                <ListItemButton>
+                                    <ListItemIcon>
+                                        {index % 2 === 0 ? (
+                                            <InboxIcon />
+                                        ) : (
+                                            <MailIcon />
+                                        )}
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={item.name}
+                                        style={{
+                                            color: "black",
+                                        }}
+                                    />
+                                </ListItemButton>
+                            </Link>
+                        </div>
+                    ))}
+
+                { user?.role==="admin" && adminComponents.map((text, index) => (
                     <div key={index}>
                         <Link
                             to={text.path}
-                            style={{ color: "black", textDecoration: "none" }}
+                            style={{
+                                color: "black",
+                                textDecoration: "none",
+                            }}
                         >
                             <ListItemButton>
                                 <ListItemIcon>
@@ -146,7 +184,7 @@ function ResponsiveDrawer(props) {
                     p: 3,
                     width: { sm: `calc(100% - ${drawerWidth}px)` },
                 }}
-                style={{paddingLeft:"0px", paddingBottom:"0px"}}
+                style={{ paddingLeft: "0px", paddingBottom: "0px" }}
             >
                 <Toolbar />
                 <Outlet></Outlet>
