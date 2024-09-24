@@ -1,7 +1,10 @@
 import React from "react";
 import "./TopBanner.css";
+import { useNavigate } from "react-router-dom";
 
 const TopBanner = () => {
+    const navigate = useNavigate();
+
     return (
         <div className="container-fluid p-0 ">
             <div
@@ -31,6 +34,7 @@ const TopBanner = () => {
                                     border: "1px solid #195A00",
                                     color: "#195A00",
                                 }}
+                                onClick={()=>navigate('/cart')}
                             >
                                 Place a order
                             </button>

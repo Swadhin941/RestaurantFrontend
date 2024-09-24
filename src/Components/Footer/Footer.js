@@ -1,8 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Footer.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import useAxiosSecure from "../CustomHook/useAxiosSecure/useAxiosSecure";
+import toast from "react-hot-toast";
 
 const Footer = () => {
+    const [recentPost, setRecentPost]= useState([]);
+    const [axiosSecure]= useAxiosSecure();
+    const navigate = useNavigate();
+
+    useEffect(()=>{
+        axiosSecure.get(`/get-recent-posts`)
+        .then(res=>res.data)
+        .then(data=>{
+            setRecentPost(data);
+        })
+        .catch(error=>{
+            toast.error(error.message);
+        })
+    },[])
+
+
     return (
         <div className="container-fluid footerContainer">
             <div className="d-flex justify-content-center">
@@ -24,9 +42,9 @@ const Footer = () => {
                 <div className="footerAboutUs">
                     <h5 className="fw-bold text-white">About us</h5>
                     <p className="text-white">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Aspernatur recusandae dolorem vero culpa exercitationem,
-                        magni suscipit. Molestias harum laboriosam ipsum.
+                        Welcome to FOODIE, where fresh ingredients, authentic
+                        flavors, and warm hospitality come together to create a
+                        memorable dining experience for every guest.
                     </p>
                     <div className="d-flex">
                         <div className="me-2">
@@ -61,73 +79,48 @@ const Footer = () => {
                     <h5 className="text-white fw-bold">Useful links</h5>
                     <div>
                         <Link
-                            to="/about"
+                            to="/my-profile"
                             className="text-decoration-none text-white"
                         >
-                            About
+                            Profile
                         </Link>
                     </div>
                     <div>
                         <Link
-                            to="/about"
+                            to="/cart"
                             className="text-decoration-none text-white"
                         >
-                            About
-                        </Link>
-                    </div>
-                    <div>
-                        <Link
-                            to="/about"
-                            className="text-decoration-none text-white"
-                        >
-                            About
-                        </Link>
-                    </div>
-                    <div>
-                        <Link
-                            to="/about"
-                            className="text-decoration-none text-white"
-                        >
-                            About
-                        </Link>
-                    </div>
-                    <div>
-                        <Link
-                            to="/about"
-                            className="text-decoration-none text-white"
-                        >
-                            About
+                            Cart
                         </Link>
                     </div>
                 </div>
                 <div className="footerRecentPost">
                     <h5 className="text-white fw-bold">Recent post</h5>
-                    <div className="d-flex my-0">
-                        <div style={{ height: "80px", width: "80px" }}>
-                            <img
-                                src="https://i.ibb.co/mJn7gmn/foodie-logo.png"
-                                alt=""
-                                style={{height:"auto", width: "100%"}}
-                            />
+                    {recentPost.map((post, index) => (
+                        <div className="d-flex my-0" key={index} style={{cursor:"pointer"}} onClick={()=>navigate(`/product-details/${post._id}`)}>
+                            <div style={{ height: "80px", width: "80px" }}>
+                                <img
+                                    src= {post?.imgLink}
+                                    alt=""
+                                    style={{ height: "auto", width: "100%" }}
+                                />
+                            </div>
+                            <div className="ms-2">
+                                <h5
+                                    className="text-white fw-bold my-0"
+                                    style={{ fontSize: "12px" }}
+                                >
+                                    {post.title}
+                                </h5>
+                                <p
+                                    className="text-white my-0"
+                                    style={{ fontSize: "10px" }}
+                                >
+                                    {post.description.slice(0,60)}...
+                                </p>
+                            </div>
                         </div>
-                        <div className="ms-2">
-                            <h5 className="text-white fw-bold my-0" style={{fontSize:"12px"}}>Test Recent</h5>
-                            <p className="text-white my-0" style={{fontSize:"10px"}}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam, ratione.</p>
-                        </div>
-                    </div>
-                    <div className="d-flex my-0">
-                        <div style={{ height: "80px", width: "80px" }}>
-                            <img
-                                src="https://i.ibb.co/mJn7gmn/foodie-logo.png"
-                                alt=""
-                                style={{height:"auto", width: "100%"}}
-                            />
-                        </div>
-                        <div className="ms-2">
-                            <h5 className="text-white fw-bold my-0" style={{fontSize:"12px"}}>Test Recent</h5>
-                            <p className="text-white my-0" style={{fontSize:"10px"}}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam, ratione.</p>
-                        </div>
-                    </div>
+                    ))}
                 </div>
             </div>
         </div>

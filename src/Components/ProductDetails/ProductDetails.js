@@ -12,6 +12,8 @@ import toast from "react-hot-toast";
 import { SharedData } from "../SharedData/SharedContext";
 import useAxiosSecure from "../CustomHook/useAxiosSecure/useAxiosSecure";
 import FeedbackModal from "../Modals/FeedbackModal/FeedbackModal";
+import EditCommentModal from "../Modals/EditCommentModal/EditCommentModal";
+import ConfirmModal from "../Modals/ConfirmModal/ConfirmModal";
 
 const ProductDetails = () => {
     const [quantityCounter, setQuantityCounter] = useState(1);
@@ -25,25 +27,29 @@ const ProductDetails = () => {
     const [dataLoading, setDataLoading] = useState(false);
     const [feedbackData, setFeedbackData] = useState(null);
     const [allFeedback, setAllFeedback] = useState([]);
-    const [reload, setReload]= useState(true);
+    const [reload, setReload] = useState(true);
+    const [commentEdit, setCommentEdit] = useState(null);
+    const [deleteState, setDeleteState] = useState(false);
+    const [deleteFeedback, setDeleteFeedback] = useState(null);
 
-    useEffect(()=>{
-        if(loaderData?._id){
-            axiosSecure.post('/specific-products-rating',{
-                productId: loaderData._id
-            })
-            .then(res=>res.data)
-            .then(data=>{
-                if(data){
-                    const temp = {...loaderData, ...data};
-                    setDetailsData(temp);
-                }
-            })
-            .catch(error=>{
-                toast.error(error.message);
-            })
+    useEffect(() => {
+        if (loaderData?._id) {
+            axiosSecure
+                .post("/specific-products-rating", {
+                    productId: loaderData._id,
+                })
+                .then((res) => res.data)
+                .then((data) => {
+                    if (data) {
+                        const temp = { ...loaderData, ...data };
+                        setDetailsData(temp);
+                    }
+                })
+                .catch((error) => {
+                    toast.error(error.message);
+                });
         }
-    },[loaderData, reload])
+    }, [loaderData, reload]);
 
     const handleIncClick = () => {
         const cartStatus = detailsData.cart ? true : false;
@@ -83,7 +89,7 @@ const ProductDetails = () => {
                 setDataLoading(false);
                 toast.error(error.message);
             });
-    }, []);
+    }, [reload]);
 
     useEffect(() => {
         if (user && detailsData._id) {
@@ -161,6 +167,30 @@ const ProductDetails = () => {
         }
     }, [user, feedbackData]);
 
+    useEffect(() => {
+        if (deleteState) {
+            axiosSecure
+                .delete(
+                    `/feedback/delete?user=${user?.email}&deleteId=${deleteFeedback}`
+                )
+                .then((res) => res.data)
+                .then((data) => {
+                    console.log(data);
+                    if (data.deletedCount >= 1) {
+                        setDeleteState(false);
+                        setDeleteFeedback(null);
+                        toast.success("Deleted successfully");
+                        setReload(!reload);
+                    }
+                })
+                .catch((error) => {
+                    toast.error(error.message);
+                    setDeleteState(false);
+                    setDeleteFeedback(null);
+                });
+        }
+    }, [deleteState]);
+
     const handleDecClick = () => {
         const cartStatus = detailsData.cart ? true : false;
         if (cartStatus) {
@@ -212,7 +242,7 @@ const ProductDetails = () => {
             temp.productId = detailsData?._id;
             delete temp._id;
             axiosSecure
-                .post(`/add-cart?user=${user}`, {
+                .post(`/add-cart?user=${user?.email}`, {
                     ...temp,
                 })
                 .then((res) => res.data)
@@ -277,7 +307,9 @@ const ProductDetails = () => {
                                     key={ratingIndex}
                                 ></i>
                             ))}
-                            <small>({detailsData.totalUserRating || "0"})</small>
+                            <small>
+                                ({detailsData.totalUserRating || "0"})
+                            </small>
                         </div>
                     ) : (
                         <div className="">
@@ -399,9 +431,58 @@ const ProductDetails = () => {
                                                     ? "You"
                                                     : item.fullName}
                                             </h6>
-                                            <small className="pe-2 text-success fw-bold">
-                                                {item.date}
-                                            </small>
+                                            <div className="d-flex me-2">
+                                                <small className="pe-2 text-success fw-bold">
+                                                    {item.date}
+                                                </small>
+                                                {(user?.role === "admin" ||
+                                                    item.email ===
+                                                        user?.email) && (
+                                                    <div className="dropdown">
+                                                        <i
+                                                            className="bi bi-three-dots-vertical dropdown-toggle"
+                                                            data-bs-toggle="dropdown"
+                                                        ></i>
+
+                                                        <ul className="dropdown-menu">
+                                                            {item.email ===
+                                                                user?.email && (
+                                                                <li>
+                                                                    <p
+                                                                        className="dropdown-item"
+                                                                        onClick={() =>
+                                                                            setCommentEdit(
+                                                                                {
+                                                                                    email: user?.email,
+                                                                                    id: item._id,
+                                                                                }
+                                                                            )
+                                                                        }
+                                                                        data-bs-target="#EditCommentModal"
+                                                                        data-bs-toggle="modal"
+                                                                    >
+                                                                        Edit
+                                                                    </p>
+                                                                </li>
+                                                            )}
+
+                                                            <li
+                                                                data-bs-target="#ConfirmModal"
+                                                                data-bs-toggle="modal"
+                                                                onClick={() =>
+                                                                    setDeleteFeedback(
+                                                                        item._id
+                                                                    )
+                                                                }
+                                                            >
+                                                                <p className="dropdown-item">
+                                                                    Delete
+                                                                </p>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div>{item.message}</div>
@@ -460,7 +541,13 @@ const ProductDetails = () => {
                     ))
                 )}
             </div>
+            <EditCommentModal
+                commentEdit={commentEdit}
+                reload={reload}
+                setReload={setReload}
+            ></EditCommentModal>
             <FeedbackModal setFeedbackData={setFeedbackData}></FeedbackModal>
+            <ConfirmModal setDeleteState={setDeleteState}></ConfirmModal>
         </div>
     );
 };

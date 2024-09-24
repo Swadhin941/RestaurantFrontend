@@ -59,7 +59,7 @@ const AllOrder = () => {
                 .catch((error) => {
                     toast.error(error.message);
                 });
-        }, 20000);
+        }, 8000);
         return () => clearInterval(interval);
     }, [user, timeUpdate]);
 
@@ -141,10 +141,10 @@ const AllOrder = () => {
                             {item?.deliverTimeInMilli ? (
                                 item.deliverTimeInMilli >= Date.now() ? (
                                     <span>
-                                        {(item.deliverTimeInMilli -
+                                        {parseInt((item.deliverTimeInMilli -
                                             Date.now()) /
                                             1000 /
-                                            60}
+                                            60)} Min
                                     </span>
                                 ) : (
                                     <>

@@ -3,6 +3,7 @@ import useAxiosSecure from "../../CustomHook/useAxiosSecure/useAxiosSecure";
 import toast from "react-hot-toast";
 import "./PopularDishes.css";
 import Spinner from "../../Spinner/Spinner";
+import { useNavigate } from "react-router-dom";
 
 const PopularDishes = () => {
     const [popularDishes, setPopularDishes] = useState([]);
@@ -10,6 +11,7 @@ const PopularDishes = () => {
     const [positionCount, setPositionCount] = useState(1);
     const [dataLoading, setDataLoading] = useState(false);
     const [loadMore, setLoadMore] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         setDataLoading(true);
@@ -44,7 +46,11 @@ const PopularDishes = () => {
                             className="col-12 col-sm-6 col-md-4 col-lg-3"
                             key={index}
                         >
-                            <div className="card" style={{ cursor: "pointer" }}>
+                            <div
+                                className="card"
+                                style={{ cursor: "pointer" }}
+                                onClick={() => navigate(`/product-details/${dish._id}`)}
+                            >
                                 <div style={{ height: "160px" }}>
                                     <img
                                         src={dish.imgLink}

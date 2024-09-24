@@ -37,13 +37,14 @@ const Profile = () => {
                 .then((res) => res.data)
                 .then((data) => {
                     if (data) {
+                        console.log(data);
                         setAllTrx(data);
                     }
                 })
                 .catch((error) => {
                     toast.error(error.message);
                 });
-        }, 20000);
+        }, 8000);
         return () => clearInterval(interval);
     }, [user]);
 
@@ -225,10 +226,10 @@ const Profile = () => {
                                                             trx?.deliverTimeInMilli >=
                                                             Date.now() ? (
                                                                 <span>
-                                                                    {(item.deliverTimeInMilli -
+                                                                    {parseInt((trx.deliverTimeInMilli -
                                                                         Date.now()) /
                                                                         1000 /
-                                                                        60}
+                                                                        60)}
                                                                     Min
                                                                 </span>
                                                             ) : (

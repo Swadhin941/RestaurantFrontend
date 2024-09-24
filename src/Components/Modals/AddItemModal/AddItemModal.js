@@ -94,7 +94,8 @@ const AddItemModal = ({reloadData, setReloadData}) => {
                         price,
                         description,
                         imgLink: imgData?.data?.url,
-                        category
+                        category,
+                        postSec: Date.now()
                     })
                     .then(res=>res.data)
                     .then((data)=>{
