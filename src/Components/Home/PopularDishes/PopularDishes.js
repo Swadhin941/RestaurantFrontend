@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import useAxiosSecure from "../../CustomHook/useAxiosSecure/useAxiosSecure";
 import toast from "react-hot-toast";
 import "./PopularDishes.css";
 import Spinner from "../../Spinner/Spinner";
 import { useNavigate } from "react-router-dom";
+import { SharedData } from "../../SharedData/SharedContext";
 
 const PopularDishes = () => {
     const [popularDishes, setPopularDishes] = useState([]);
@@ -11,12 +12,13 @@ const PopularDishes = () => {
     const [positionCount, setPositionCount] = useState(1);
     const [dataLoading, setDataLoading] = useState(false);
     const [loadMore, setLoadMore] = useState(false);
+    const { user } = useContext(SharedData);
     const navigate = useNavigate();
 
     useEffect(() => {
         setDataLoading(true);
         axiosSecure
-            .get(`/top-products`)
+            .get(`/top-products?user=${user?.email}`)
             .then((res) => res.data)
             .then((data) => {
                 setPopularDishes(data);
@@ -49,7 +51,9 @@ const PopularDishes = () => {
                             <div
                                 className="card"
                                 style={{ cursor: "pointer" }}
-                                onClick={() => navigate(`/product-details/${dish._id}`)}
+                                onClick={() =>
+                                    navigate(`/product-details/${dish._id}`)
+                                }
                             >
                                 <div style={{ height: "160px" }}>
                                     <img

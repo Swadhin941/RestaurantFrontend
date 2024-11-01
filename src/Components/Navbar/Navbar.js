@@ -164,7 +164,7 @@ const Navbar = () => {
                                                                 )
                                                             }
                                                         >
-                                                            Admin panel
+                                                            {(user?.role==="chef" && "Chef")|| (user?.role==="admin"&& "Admin")} panel
                                                         </p>
                                                     </li>
                                                 </>

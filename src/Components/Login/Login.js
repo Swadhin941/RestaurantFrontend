@@ -30,6 +30,12 @@ const Login = () => {
             .then((res) => res.json())
             .then((data) => {
                 if (data) {
+                    if(data?.message){
+                        toast.error(data?.message);
+                        setUser(null);
+                        setDataLoading(false);
+                        return;
+                    }
                     fetch(`${ServerUrl}/auth/jwt`, {
                         method: "POST",
                         headers: {
