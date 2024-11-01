@@ -10,6 +10,18 @@
     .profile-item {
         cursor: pointer;
     }
+    .fixed-top{
+        background-color: #FFFFFF;
+    }
+    .nav-search input{
+        width: 300px;
+    }
+    .nav-search{
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
 }
 
 @media (min-width: 577px) and (max-width: 767px) {
@@ -24,6 +36,18 @@
     .profile-item {
         cursor: pointer;
     }
+    .fixed-top{
+        background-color: #FFFFFF;
+    }
+    .nav-search input{
+        width: 300px;
+    }
+    .nav-search{
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
 }
 
 @media (min-width: 768px) and (max-width: 992px) {
@@ -37,6 +61,18 @@
     }
     .profile-item {
         cursor: pointer;
+    }
+    .fixed-top{
+        background-color: #FFFFFF;
+    }
+    .nav-search input{
+        width: 300px;
+    }
+    .nav-search{
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+        margin-top: 10px;
     }
 }
 
@@ -65,6 +101,15 @@
     .profile-item {
         cursor: pointer;
         margin-left: 0.60rem;
+    }
+    .fixed-top{
+        background-color: #FFFFFF;
+    }
+     .nav-search{
+        margin-left: 5rem;
+    }
+    .nav-search input{
+        width: 300px;
     }
 }
 
@@ -98,5 +143,14 @@
     .profile-item p{
         color: whitesmoke;
         font-weight: 600;
+    }
+    .fixed-top{
+        background-color: #FFFFFF;
+    }
+    .nav-search{
+        margin-left: 15rem;
+    }
+    .nav-search input{
+        width: 400px;
     }
 }

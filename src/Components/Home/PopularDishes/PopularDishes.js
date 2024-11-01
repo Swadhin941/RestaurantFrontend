@@ -40,7 +40,7 @@ const PopularDishes = () => {
             {dataLoading ? (
                 <Spinner></Spinner>
             ) : (
-                <div className="row mx-3 my-2">
+                <div className="row mx-3 my-2 g-3">
                     {popularDishes.map((dish, index) => (
                         <div
                             className="col-12 col-sm-6 col-md-4 col-lg-3"

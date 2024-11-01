@@ -21,10 +21,12 @@ import { SharedData } from "../SharedData/SharedContext";
 
 import ChefComponents from "../CustomComponents/AdminComponents/ChefComponents";
 import AdminComponents from "../CustomComponents/AdminComponents/AdminComponents";
+import useTitle from "../CustomHook/useTitle/useTitle";
 
 const drawerWidth = 240;
 
 function ResponsiveDrawer(props) {
+    useTitle("Admin - Foodie");
     const { user } = useContext(SharedData);
     const { window } = props;
     const [mobileOpen, setMobileOpen] = useState(false);

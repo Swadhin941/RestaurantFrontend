@@ -14,8 +14,10 @@ import useAxiosSecure from "../CustomHook/useAxiosSecure/useAxiosSecure";
 import FeedbackModal from "../Modals/FeedbackModal/FeedbackModal";
 import EditCommentModal from "../Modals/EditCommentModal/EditCommentModal";
 import ConfirmModal from "../Modals/ConfirmModal/ConfirmModal";
+import useTitle from "../CustomHook/useTitle/useTitle";
 
 const ProductDetails = () => {
+    useTitle("Product Details- Foodie");
     const [quantityCounter, setQuantityCounter] = useState(1);
     const { user } = useContext(SharedData);
     const [axiosSecure] = useAxiosSecure();
@@ -175,7 +177,7 @@ const ProductDetails = () => {
                 )
                 .then((res) => res.data)
                 .then((data) => {
-                    console.log(data);
+                    // console.log(data);
                     if (data.deletedCount >= 1) {
                         setDeleteState(false);
                         setDeleteFeedback(null);

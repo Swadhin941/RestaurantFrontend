@@ -5,8 +5,10 @@ import toast from "react-hot-toast";
 import "./Cart.css";
 import ConfirmModal from "../Modals/ConfirmModal/ConfirmModal";
 import { useNavigate } from "react-router-dom";
+import useTitle from "../CustomHook/useTitle/useTitle";
 
 const Cart = () => {
+    useTitle("Cart - Foodie");
     const [allCart, setAllCart] = useState([]);
     const { user } = useContext(SharedData);
     const [axiosSecure] = useAxiosSecure();

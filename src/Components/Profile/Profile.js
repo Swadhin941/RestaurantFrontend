@@ -17,7 +17,7 @@ const Profile = () => {
     const [dataLoading, setDataLoading] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
+  useEffect(()   => {
         if (user) {
             axiosSecure
                 .get(`/api/all-transactions?user=${user?.email}`)
@@ -37,7 +37,7 @@ const Profile = () => {
                 .then((res) => res.data)
                 .then((data) => {
                     if (data) {
-                        console.log(data);
+                        // console.log(data);
                         setAllTrx(data);
                     }
                 })
