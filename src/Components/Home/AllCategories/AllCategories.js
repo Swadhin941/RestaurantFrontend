@@ -10,7 +10,6 @@ const AllCategories = () => {
     const [allCategory, setAllCategory] = useState([]);
     const [allStoredCategory, setAllStoredCategory] = useState([]);
     const [dataLoading, setDataLoading] = useState(false);
-    const [dataLimit, setDataLimit] = useState(true);
     const navigate = useNavigate();
     const {user}= useContext(SharedData);
 
@@ -28,18 +27,6 @@ const AllCategories = () => {
                 toast.error(error.message);
             });
     }, []);
-    useEffect(()=>{
-        if(!dataLimit){
-            setDataLoading(true);
-            setAllCategory(allStoredCategory);
-            setDataLoading(false);
-        }
-        else{
-            setDataLoading(true);
-            setAllCategory(allStoredCategory.slice(0, 6));
-            setDataLoading(false);
-        }
-    },[allStoredCategory, dataLimit])
     return (
         <div className="mt-2 mx-4">
             <h5
@@ -77,25 +64,6 @@ const AllCategories = () => {
                             </div>
                         </div>
                     ))}
-                    <div className="mt-2 d-flex justify-content-center mb-3">
-                        {
-                            dataLimit ? (
-                                <button
-                                    className="btn btn-success"
-                                    onClick={() => {
-                                        setDataLimit(false);
-                                        // fetch more data here
-                                    }}
-                                >
-                                    Load More
-                                </button>
-                            ): (
-                                <button className="btn btn-success" onClick={()=>setDataLimit(true)}>
-                                    Load fewer data
-                                </button>  // add this when there is no more data to load
-                            )
-                        }
-                    </div>
                 </div>
             )}
         </div>
