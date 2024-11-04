@@ -24,6 +24,7 @@ const Profile = () => {
                 .then((res) => res.data)
                 .then((data) => {
                     if (data) {
+                        console.log(data);
                         setAllTrx(data);
                     }
                 })
@@ -287,6 +288,10 @@ const Profile = () => {
                                                     >
                                                         View Details
                                                     </button>
+                                                    {
+                                                        item.deliverStatus !== true && <button className="btn btn-danger btn-sm mt-1 ms-1 border border-0">Cancel</button> 
+                                                    }
+                                                    
                                                 </div>
                                             </div>
                                         </div>

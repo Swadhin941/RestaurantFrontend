@@ -28,7 +28,7 @@ const PopularDishes = () => {
                 toast.error(error.message);
                 setDataLoading(false);
             });
-    }, []);
+    }, [user]);
 
     return (
         <div className="container-fluid ps-0 pe-0 mb-4">
