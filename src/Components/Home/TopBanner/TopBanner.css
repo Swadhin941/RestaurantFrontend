@@ -4,7 +4,6 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        background-image: url(https://i.ibb.co/y6Sw1ZK/DALL-E-2024-06-08-21-09-53-A-clean-modern-top-banner-image-for-a-restaurant-website-featuring-a-mini.webp);
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center;
@@ -30,7 +29,6 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        background-image: url(https://i.ibb.co/y6Sw1ZK/DALL-E-2024-06-08-21-09-53-A-clean-modern-top-banner-image-for-a-restaurant-website-featuring-a-mini.webp);
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center;
@@ -53,7 +51,6 @@
 
 @media (min-width: 768px) and (max-width: 992px) {
     .topBanner{
-        background-image: url(https://i.ibb.co/y6Sw1ZK/DALL-E-2024-06-08-21-09-53-A-clean-modern-top-banner-image-for-a-restaurant-website-featuring-a-mini.webp);
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center;
@@ -88,7 +85,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background-image: url(https://i.ibb.co/y6Sw1ZK/DALL-E-2024-06-08-21-09-53-A-clean-modern-top-banner-image-for-a-restaurant-website-featuring-a-mini.webp);
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center;

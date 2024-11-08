@@ -16,6 +16,7 @@ const Cart = () => {
     const [totalPrice, setTotalPrice] = useState(0);
     const [selectedToDelete, setSelectedToDelete] = useState(null);
     const [deleteState, setDeleteState] = useState(false);
+    const [reload, setReload]= useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -37,6 +38,7 @@ const Cart = () => {
                         toast.success("Product removed from cart successfully");
                         setDeleteState(false);
                         setSelectedToDelete(null);
+                        setReload(!reload);
                     }
                 })
                 .catch((error) => {
@@ -67,7 +69,7 @@ const Cart = () => {
                     toast.error(error?.message);
                 });
         }
-    }, [user]);
+    }, [user, reload]);
 
     const handleInc = (item) => {
         axiosSecure
