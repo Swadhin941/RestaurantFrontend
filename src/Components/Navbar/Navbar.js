@@ -77,7 +77,7 @@ const Navbar = () => {
                                     suggestions={suggestedData}
                                     completeMethod={handleComplete}
                                     placeholder="Search by product name"
-                                    onChange={(e)=>setSelectedValue(e.value)}
+                                    onChange={(e) => setSelectedValue(e.value)}
                                 />
                             </div>
                         )}
@@ -101,6 +101,20 @@ const Navbar = () => {
                                     title="cart"
                                 >
                                     <i className="bi bi-cart-fill fs-4"></i>
+                                </Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link
+                                    className="nav-link"
+                                    to={"/about-us"}
+                                    title="About us"
+                                >
+                                    <img
+                                        src="https://i.ibb.co.com/7rkC0Wf/restaurant-336959.png"
+                                        alt=""
+                                        style={{height:"26px", width:"26px"}}
+                                    />
+
                                 </Link>
                             </li>
                             {!user && (
@@ -164,7 +178,13 @@ const Navbar = () => {
                                                                 )
                                                             }
                                                         >
-                                                            {(user?.role==="chef" && "Chef")|| (user?.role==="admin"&& "Admin")} panel
+                                                            {(user?.role ===
+                                                                "chef" &&
+                                                                "Chef") ||
+                                                                (user?.role ===
+                                                                    "admin" &&
+                                                                    "Admin")}{" "}
+                                                            panel
                                                         </p>
                                                     </li>
                                                 </>
