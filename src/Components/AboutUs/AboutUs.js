@@ -130,7 +130,7 @@ const AboutUs = () => {
                                             Head
                                         </p>
                                     )}
-                                    {index === 1 && (
+                                    {index >= 1 && (
                                         <p className="text-center text-success fw-bold mt-0">
                                             New
                                         </p>
