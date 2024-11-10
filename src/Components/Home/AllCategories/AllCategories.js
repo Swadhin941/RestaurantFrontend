@@ -104,14 +104,6 @@ const AllCategories = () => {
                             autoplayInterval={2000}
                         />
                     </div>
-                    {/* {allCategory.map((item, index) => (
-                        <div
-                            className="col-6 col-sm-4 col-md-3 col-lg-2"
-                            key={index}
-                        >
-                            
-                        </div>
-                    ))} */}
                 </div>
             )}
         </div>

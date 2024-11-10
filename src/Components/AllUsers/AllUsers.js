@@ -3,6 +3,7 @@ import { SharedData } from "../SharedData/SharedContext";
 import useAxiosSecure from "../CustomHook/useAxiosSecure/useAxiosSecure";
 import toast from "react-hot-toast";
 import ConfirmModal from "../Modals/ConfirmModal/ConfirmModal";
+import UserInfoModal from "../Modals/UserInfoModal/UserInfoModal";
 
 const AllUsers = () => {
     const [allData, setAllData] = useState([]);
@@ -11,6 +12,8 @@ const AllUsers = () => {
     const [userFilter, setUserFilter] = useState(null);
     const [selectedToDelete, setSelectedToDelete]= useState(null);
     const [deleteState, setDeleteState]= useState(false);
+    const [selectedToEdit, setSelectedToEdit]= useState(null);
+    const [reload, setReload]= useState(false);
 
     const filterOption = [
         {
@@ -32,14 +35,13 @@ const AllUsers = () => {
                 .get(`/auth/all-users?user=${user?.email}&&role=${userFilter}`)
                 .then((res) => res.data)
                 .then((data) => {
-                    console.log(data);
                     setAllData(data);
                 })
                 .catch((error) => {
                     toast.error(error.message);
                 });
         }
-    }, [user, userFilter]);
+    }, [user, userFilter, reload]);
 
     const handleRoleChange= (data, email)=>{
         axiosSecure.put(`/auth/update-role?user=${user?.email}`,{
@@ -107,6 +109,7 @@ const AllUsers = () => {
                                 <th>No.</th>
                                 <th>Full Name</th>
                                 <th>Email</th>
+                                <th>Edit Info</th>
                                 <th className="d-flex justify-content-evenly">
                                     <div>Actions</div>
                                     <div>
@@ -137,25 +140,59 @@ const AllUsers = () => {
                                     <td>{index + 1}</td>
                                     <td>{item.fullName}</td>
                                     <td>{item.email}</td>
+                                    <td style={{cursor:"pointer"}}>
+                                        <i className="bi bi-box-arrow-in-down-left fs-5" data-bs-target="#UserInfoModal" data-bs-toggle="modal" onClick={()=>setSelectedToEdit(item)}></i>
+                                    </td>
                                     <td>
                                         {item.role !== "chef" &&
                                         item.role !== "admin" ? (
                                             <>
-                                                <button className="btn btn-primary me-2 btn-sm border border-0" onClick={()=>handleRoleChange("chef", item.email)}>
+                                                <button
+                                                    className="btn btn-primary me-2 btn-sm border border-0"
+                                                    onClick={() =>
+                                                        handleRoleChange(
+                                                            "chef",
+                                                            item.email
+                                                        )
+                                                    }
+                                                >
                                                     Make Chef
                                                 </button>
 
-                                                <button className="btn btn-warning me-2 btn-sm border border-0" onClick={()=>handleRoleChange("admin", item.email)}>
+                                                <button
+                                                    className="btn btn-warning me-2 btn-sm border border-0"
+                                                    onClick={() =>
+                                                        handleRoleChange(
+                                                            "admin",
+                                                            item.email
+                                                        )
+                                                    }
+                                                >
                                                     Make Admin
                                                 </button>
                                             </>
                                         ) : (
-                                            <button className="btn btn-primary me-2 btn-sm border border-0" onClick={()=>handleRoleChange("regular", item.email)}>
+                                            <button
+                                                className="btn btn-primary me-2 btn-sm border border-0"
+                                                onClick={() =>
+                                                    handleRoleChange(
+                                                        "regular",
+                                                        item.email
+                                                    )
+                                                }
+                                            >
                                                 Make regular user
                                             </button>
                                         )}
 
-                                        <button className="btn btn-danger btn-sm border border-0" data-bs-target="#ConfirmModal" data-bs-toggle="modal" onClick={()=>setSelectedToDelete(item?.email)}>
+                                        <button
+                                            className="btn btn-danger btn-sm border border-0"
+                                            data-bs-target="#ConfirmModal"
+                                            data-bs-toggle="modal"
+                                            onClick={() =>
+                                                setSelectedToDelete(item?.email)
+                                            }
+                                        >
                                             Delete
                                         </button>
                                     </td>
@@ -165,6 +202,7 @@ const AllUsers = () => {
                     </table>
                 </div>
                 <ConfirmModal setDeleteState={setDeleteState}></ConfirmModal>
+                <UserInfoModal selectedToEdit={selectedToEdit} reload={reload} setReload={setReload} setSelectedToEdit={setSelectedToEdit}></UserInfoModal>
             </div>
         </div>
     );

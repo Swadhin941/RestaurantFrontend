@@ -28,6 +28,7 @@ const ProductPurchase = () => {
                 .then((res) => res.data)
                 .then((data) => {
                     if (data.length > 0) {
+                        console.log(data);
                         setAllData(data);
                         let temp = [];
                         let temp2 = [];

@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import useTitle from "../CustomHook/useTitle/useTitle";
 import { useNavigate } from "react-router-dom";
 import PulseLoader from "react-spinners/PulseLoader";
+import ConfirmModal from "../Modals/ConfirmModal/ConfirmModal";
 
 const Profile = () => {
     useTitle("Profile- Foodie");
@@ -15,16 +16,18 @@ const Profile = () => {
     const [axiosSecure] = useAxiosSecure();
     const [tempImg, setTempImg] = useState(null);
     const [dataLoading, setDataLoading] = useState(false);
+    const [deleteState, setDeleteState] = useState(false);
+    const [selectedToDelete, setSelectedToDelete] = useState(null);
     const navigate = useNavigate();
+    const [reload, setReload] = useState(false);
 
-  useEffect(()   => {
+    useEffect(() => {
         if (user) {
             axiosSecure
                 .get(`/api/all-transactions?user=${user?.email}`)
                 .then((res) => res.data)
                 .then((data) => {
                     if (data) {
-                        console.log(data);
                         setAllTrx(data);
                     }
                 })
@@ -47,7 +50,30 @@ const Profile = () => {
                 });
         }, 8000);
         return () => clearInterval(interval);
-    }, [user]);
+    }, [user, reload]);
+
+    useEffect(() => {
+        if (deleteState) {
+            axiosSecure
+                .delete(`/remove-order?user=${user?.email}`, {
+                    data: {
+                        ...selectedToDelete,
+                    },
+                })
+                .then((res) => res.data)
+                .then((data) => {
+                    if (data.deletedCount >= 1) {
+                        setReload(!reload);
+                        setSelectedToDelete(null);
+                    }
+                    setDeleteState(false);
+                })
+                .catch((error) => {
+                    setDeleteState(false);
+                    toast.error(error.message);
+                });
+        }
+    }, [deleteState]);
 
     const handleImgChange = (e) => {
         const files = e.target.files[0];
@@ -210,7 +236,7 @@ const Profile = () => {
                                                         src={item.imgLink}
                                                         alt=""
                                                         style={{
-                                                            height: "100%",
+                                                            height: "160px",
                                                             width: "100%",
                                                         }}
                                                         className="border rounded"
@@ -227,10 +253,12 @@ const Profile = () => {
                                                             trx?.deliverTimeInMilli >=
                                                             Date.now() ? (
                                                                 <span>
-                                                                    {parseInt((trx.deliverTimeInMilli -
-                                                                        Date.now()) /
-                                                                        1000 /
-                                                                        60)}
+                                                                    {parseInt(
+                                                                        (trx.deliverTimeInMilli -
+                                                                            Date.now()) /
+                                                                            1000 /
+                                                                            60
+                                                                    )}
                                                                     Min
                                                                 </span>
                                                             ) : (
@@ -288,18 +316,31 @@ const Profile = () => {
                                                     >
                                                         View Details
                                                     </button>
-                                                    {
-                                                        item.deliverStatus !== true && <button className="btn btn-danger btn-sm mt-1 ms-1 border border-0">Cancel</button> 
-                                                    }
-                                                    
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 ))}
+                                {!trx?.deliverStatus && (
+                                    <div className="d-flex justify-content-center mt-2 mb-2">
+                                        <button
+                                            className="btn btn-outline-danger btn-sm"
+                                            onClick={() =>
+                                                setSelectedToDelete(trx)
+                                            }
+                                            data-bs-target="#ConfirmModal"
+                                            data-bs-toggle="modal"
+                                        >
+                                            Cancel this order
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
+                    <ConfirmModal
+                        setDeleteState={setDeleteState}
+                    ></ConfirmModal>
                 </div>
             )}
             <ChangePasswordModal></ChangePasswordModal>

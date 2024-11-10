@@ -93,6 +93,14 @@ const Footer = () => {
                             Cart
                         </Link>
                     </div>
+                    <div>
+                        <Link
+                            to="/about-us"
+                            className="text-decoration-none text-white"
+                        >
+                            About-us
+                        </Link>
+                    </div>
                 </div>
                 <div className="footerRecentPost">
                     <h5 className="text-white fw-bold">Recent post</h5>

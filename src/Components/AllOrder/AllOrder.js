@@ -3,6 +3,7 @@ import { SharedData } from "../SharedData/SharedContext";
 import useAxiosSecure from "../CustomHook/useAxiosSecure/useAxiosSecure";
 import toast from "react-hot-toast";
 import TimeSetModal from "../Modals/TimeSetModal/TimeSetModal";
+import ConfirmModal from "../Modals/ConfirmModal/ConfirmModal";
 
 const AllOrder = () => {
     const [allOrder, setAllOrder] = useState([]);
@@ -11,6 +12,9 @@ const AllOrder = () => {
     const [timeUpdate, setTimeUpdate] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [tempData, setTempData] = useState([]);
+    const [deleteState, setDeleteState]= useState(false);
+    const [selectedToDelete, setSelectedToDelete]= useState(null);
+    const [reload, setReload]= useState(false);
 
     // useEffect(() => {
     //     if (user) {
@@ -29,6 +33,30 @@ const AllOrder = () => {
     //             });
     //     }
     // }, [user, timeUpdate]);
+
+    useEffect(()=>{
+        if(deleteState){
+            console.log(selectedToDelete);
+            axiosSecure.delete(`/remove-order?user=${user?.email}`,{
+                data: {
+                    ...selectedToDelete
+                }
+            })
+            .then(res=>res.data)
+            .then(data=>{
+                if(data.deletedCount>=1){
+                    setReload(!reload);
+                    setSelectedToDelete(null);
+                }
+                    setDeleteState(false);
+                
+            })
+            .catch(error=>{
+                setDeleteState(false);
+                toast.error(error.message);
+            })
+        }
+    },[deleteState])
 
     useEffect(() => {
         if (user) {
@@ -61,7 +89,7 @@ const AllOrder = () => {
                 });
         }, 8000);
         return () => clearInterval(interval);
-    }, [user, timeUpdate]);
+    }, [user, timeUpdate, reload]);
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -99,6 +127,8 @@ const AllOrder = () => {
             });
     };
 
+    
+
     return (
         <div className="container-fluid">
             <div className="d-flex justify-content-end">
@@ -135,16 +165,23 @@ const AllOrder = () => {
             <div className="row g-2">
                 {allOrder.map((item, index) => (
                     <div className="col-12 col-md-12 col-lg-12" key={index}>
-                        <div className="card p-2">
-                            <h6>Email: {item.user}</h6>
+                        <div className="card p-3">
+                            <div className="d-flex justify-content-between">
+                                <h6>Email: {item.user}</h6>
+                                <button className="btn btn-outline-danger btn-sm" data-bs-target="#ConfirmModal" data-bs-toggle="modal" onClick={()=>setSelectedToDelete(item)}>Cancel this order</button>
+                            </div>
+
                             <h6>trxID: {item.trxID}</h6>
                             {item?.deliverTimeInMilli ? (
                                 item.deliverTimeInMilli >= Date.now() ? (
                                     <span>
-                                        {parseInt((item.deliverTimeInMilli -
-                                            Date.now()) /
-                                            1000 /
-                                            60)} Min
+                                        {parseInt(
+                                            (item.deliverTimeInMilli -
+                                                Date.now()) /
+                                                1000 /
+                                                60
+                                        )}{" "}
+                                        Min
                                     </span>
                                 ) : (
                                     <>
@@ -170,6 +207,7 @@ const AllOrder = () => {
                                     Set delivery time
                                 </button>
                             )}
+                            <p className="my-0">Total Price: {item.totalAmount} Taka</p>
                             <div className="row mt-2 g-2">
                                 {item.allItem.map((item2, index2) => (
                                     <div
@@ -184,11 +222,17 @@ const AllOrder = () => {
                                                             src={item2?.imgLink}
                                                             alt=""
                                                             className="img-fluid"
+                                                            style={{height:"100px", width:"150px"}}
                                                         />
                                                     </div>
                                                     <div className="col-7 col-sm-8 col-md-9 col-lg-9">
                                                         <h5>{item2?.title}</h5>
-                                                        <p>
+                                                        <p className="my-0">
+                                                            Quantity:{" "}
+                                                            {item2.quantity}{" "}
+                                                            Taka
+                                                        </p>
+                                                        <p className="my-0 text-success fw-bold">
                                                             Price: {item2.price}{" "}
                                                             Taka
                                                         </p>
@@ -207,6 +251,7 @@ const AllOrder = () => {
                 setTimeUpdate={setTimeUpdate}
                 orderData={selectedOrder}
             ></TimeSetModal>
+            <ConfirmModal setDeleteState={setDeleteState}></ConfirmModal>
         </div>
     );
 };

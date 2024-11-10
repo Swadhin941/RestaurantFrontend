@@ -8,14 +8,14 @@ const AllDelivered = () => {
     const [tempData, setTempData] = useState([]);
     const { user } = useContext(SharedData);
     const [axiosSecure] = useAxiosSecure();
+    const [reload, setReload] = useState(false);
 
-    useEffect(()=>{
-        if(user){
+    useEffect(() => {
+        if (user) {
             axiosSecure
                 .get(`/all-delivered?user=${user?.email}`)
                 .then((res) => res.data)
                 .then((data) => {
-                    console.log(data);
                     setAllDelivered(data);
                     setTempData(data);
                 })
@@ -34,11 +34,11 @@ const AllDelivered = () => {
                 .catch((error) => {
                     toast.error(error.message);
                 });
-        }, 20000);
-        return ()=> clearInterval(interval);
-    },[user])
+        }, 50000);
+        return () => clearInterval(interval);
+    }, [user, reload]);
     // useEffect(()=>{
-        
+
     //     const interval= setInterval(()=>{
     //             console.log('working');
     //             // axiosSecure
@@ -52,7 +52,7 @@ const AllDelivered = () => {
     //             // .catch((error) => {
     //             //     toast.error(error.message);
     //             // });
-            
+
     //     }, 60000)
     //     return ()=> clearInterval(interval);
     // },[])
@@ -62,7 +62,10 @@ const AllDelivered = () => {
         const form = e.target;
         const email = form.orderSearch.value;
         if (email) {
-            const filteredData = tempData.filter((data) => data.user === email);
+            const filteredData =
+                allDelivered.length === 0
+                    ? tempData.filter((data) => data.user === email)
+                    : allDelivered.filter((data) => data.user === email);
             setAllDelivered(filteredData);
         }
     };
@@ -74,9 +77,43 @@ const AllDelivered = () => {
         }
     };
 
+    const handleDateChange = (e) => {
+        if (e.target.value !== "") {
+            const tempDateString = e.target.value.split("-");
+            const dateString =
+                tempDateString[1] +
+                "/" +
+                tempDateString[2] +
+                "/" +
+                tempDateString[0];
+            const temp =
+                allDelivered.length === 0
+                    ? tempData.filter((data) => data.dateString === dateString)
+                    : allDelivered.filter((data) => data.dateString === dateString);
+            setAllDelivered(temp);
+        } else {
+            setReload(!reload);
+        }
+    };
+
     return (
         <div className="container-fluid">
-            <div className="d-flex justify-content-end">
+            <div className="d-flex justify-content-between mb-3">
+                <div className="d-flex">
+                    <label
+                        htmlFor="datePicker"
+                        className="form-label w-100 me-3 mt-2 text-success"
+                    >
+                        Pick a date for filter
+                    </label>
+                    <input
+                        type="date"
+                        className="form-control"
+                        name="datePicker"
+                        id="datePicker"
+                        onChange={handleDateChange}
+                    />
+                </div>
                 <div className="mb-2" style={{ width: "300px" }}>
                     <form className="form" onSubmit={handleSubmit}>
                         <input
@@ -118,6 +155,21 @@ const AllDelivered = () => {
                                 <i className="bi bi-check-circle-fill text-success"></i>
                             </div>
                             <h6>Total: {item.totalAmount} Taka</h6>
+                            <h6>Ordered Date: {item.dateString}</h6>
+                            <h6>
+                                Delivered Date:{" "}
+                                {new Date(item?.deliverTimeInMilli)
+                                    .toLocaleDateString()
+                                    .split("/")[1] +
+                                    "/" +
+                                    new Date(item?.deliverTimeInMilli)
+                                        .toLocaleDateString()
+                                        .split("/")[0] +
+                                    "/" +
+                                    new Date(item?.deliverTimeInMilli)
+                                        .toLocaleDateString()
+                                        .split("/")[2]}
+                            </h6>
                             <div className="row mt-2 g-2">
                                 {item.allItem.map((item2, index2) => (
                                     <div
@@ -132,11 +184,19 @@ const AllDelivered = () => {
                                                             src={item2?.imgLink}
                                                             alt=""
                                                             className="img-fluid"
+                                                            style={{
+                                                                height: "100px",
+                                                                width: "100px",
+                                                            }}
                                                         />
                                                     </div>
                                                     <div className="col-7 col-sm-8 col-md-9 col-lg-9">
                                                         <h5>{item2?.title}</h5>
-                                                        <p>
+                                                        <p className="my-0">
+                                                            Quantity:{" "}
+                                                            {item2.quantity}{" "}
+                                                        </p>
+                                                        <p className="my-0 text-success fw-bold">
                                                             Price: {item2.price}{" "}
                                                             Taka
                                                         </p>

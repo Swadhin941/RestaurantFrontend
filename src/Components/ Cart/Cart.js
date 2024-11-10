@@ -154,7 +154,14 @@ const Cart = () => {
                 </div>
             ) : (
                 <div>
-                    <div style={{ height: "100vh", overflow:"auto", overflowX:"hidden", overflowY:"auto" }}>
+                    <div
+                        style={{
+                            height: "100vh",
+                            overflow: "auto",
+                            overflowX: "hidden",
+                            overflowY: "auto",
+                        }}
+                    >
                         <div className="row g-2">
                             {allCart.map((item, index) => (
                                 <div
@@ -270,22 +277,25 @@ const Cart = () => {
                                 </div>
                             ))}
                         </div>
-                    </div>
-                    <div className="d-flex justify-content-end mb-2">
-                        <div className="me-5">
-                            <h2
-                                style={{
-                                    fontFamily: `"New Amsterdam", sans-serif`,
-                                }}
-                            >
-                                Total:{" "}
-                                <span style={{ color: "green" }}>
-                                    {totalPrice} Taka
-                                </span>
-                            </h2>
-                            <button className="btn btn-primary w-100" onClick={()=>handleCheckout(allCart)}>
-                                Checkout
-                            </button>
+                        <div className="d-flex justify-content-center mb-2 mt-3">
+                            <div className="me-5">
+                                <h2
+                                    style={{
+                                        fontFamily: `"New Amsterdam", sans-serif`,
+                                    }}
+                                >
+                                    Total:{" "}
+                                    <span style={{ color: "green" }}>
+                                        {totalPrice} Taka
+                                    </span>
+                                </h2>
+                                <button
+                                    className="btn btn-primary w-100"
+                                    onClick={() => handleCheckout(allCart)}
+                                >
+                                    Checkout
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

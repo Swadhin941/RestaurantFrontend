@@ -20,6 +20,7 @@ import AllUsers from "../AllUsers/AllUsers";
 import AllOrder from "../AllOrder/AllOrder";
 import AllDelivered from "../AllDelivered/AllDelivered";
 import ChefRoute from "../PrivateRoute/ChefRoute/ChefRoute";
+import AboutUs from "../AboutUs/AboutUs";
 const Router = createBrowserRouter([
     {
         path: "/",
@@ -76,6 +77,10 @@ const Router = createBrowserRouter([
                     </PrivateRoute>
                 ),
             },
+            {
+                path: "/about-us",
+                element: <AboutUs></AboutUs>
+            }
         ],
     },
     {
